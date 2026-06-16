@@ -13,7 +13,7 @@ export default function ProjectsPage() {
           <ProjectCard
             key={project.slug}
             title={project.title}
-            description={project.description}
+            description={project.tagline}
             slug={project.slug}
           />
         ))}
