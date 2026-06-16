@@ -15,31 +15,30 @@ html {
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-
-  min-height: 100vh;
-
+  background: #050505;
+  color: white;
   overflow-x: hidden;
 }
 
-/* subtle gradient glow */
 body::before {
   content: "";
 
   position: fixed;
-
   inset: 0;
 
   background:
     radial-gradient(
-      circle at top,
-      rgba(121,255,225,0.08),
+      circle at 20% 20%,
+      rgba(34, 211, 238, 0.08),
+      transparent 35%
+    ),
+    radial-gradient(
+      circle at 80% 60%,
+      rgba(34, 211, 238, 0.05),
       transparent 40%
     );
 
   pointer-events: none;
-
   z-index: -1;
 }
 
