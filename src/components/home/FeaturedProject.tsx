@@ -1,8 +1,32 @@
+"use client";
+
+import { motion } from "framer-motion";
 import Link from "next/link";
 
 export default function FeaturedProject() {
   return (
-    <section className="max-w-6xl mx-auto px-8 py-24">
+    <motion.section
+      initial={{
+        opacity: 0,
+        y: 50,
+      }}
+      whileInView={{
+        opacity: 1,
+        y: 0,
+      }}
+      viewport={{
+        once: true,
+      }}
+      transition={{
+        duration: 0.7,
+      }}
+      className="
+        max-w-6xl
+        mx-auto
+        px-8
+        py-24
+      "
+    >
 
       <p className="text-cyan-300 uppercase tracking-widest mb-4">
         Featured Project
@@ -39,6 +63,6 @@ export default function FeaturedProject() {
 
       </div>
 
-    </section>
+    </motion.section>
   );
 }
