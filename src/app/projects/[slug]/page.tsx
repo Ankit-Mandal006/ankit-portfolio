@@ -1,5 +1,6 @@
-import { projects } from "@/data/projects";
+import { getProject } from "@/lib/projects";
 import Link from "next/link";
+import Image from "next/image";
 
 export default async function ProjectPage({
   params,
@@ -8,119 +9,113 @@ export default async function ProjectPage({
 }) {
   const { slug } = await params;
 
-  const project = projects.find(
-    (p) => p.slug === slug
-  );
+  const project = await getProject(slug);
 
   if (!project) {
     return (
-      <main className="min-h-screen p-8">
-        <h1 className="text-5xl font-bold">
+      <main className="max-w-6xl mx-auto px-8 pt-40">
+        <h1 className="text-5xl font-black">
           Project Not Found
         </h1>
-
-        <Link
-          href="/projects"
-          className="text-cyan-300 mt-6 inline-block"
-        >
-          ← Back to Projects
-        </Link>
       </main>
     );
   }
 
+  const cover =
+    project.cover ||
+    "/defaults/project-cover.png";
+
   return (
-    <main className="max-w-6xl mx-auto px-8 py-16">
+    <main className="max-w-7xl mx-auto px-8 pt-40 pb-24">
+
+      <Link
+        href="/projects"
+        className="text-cyan-300 hover:text-cyan-200"
+      >
+        ← Back to Projects
+      </Link>
 
       {/* HERO */}
 
-      <section>
+      <section className="mt-10">
 
         <p className="text-cyan-300 uppercase tracking-widest">
-          Featured Project
+          Project
         </p>
 
-        <h1 className="text-7xl font-black mt-4">
+        <h1 className="text-6xl md:text-8xl font-black mt-4">
           {project.title}
         </h1>
 
-        <p className="text-2xl text-zinc-400 mt-6">
+        <p className="text-zinc-400 text-2xl mt-6 max-w-4xl">
           {project.tagline}
         </p>
 
-        <div className="flex gap-4 mt-8 flex-wrap">
+      </section>
 
-          <a
-            href={project.itch}
-            target="_blank"
-            className="
-              px-6 py-3
-              bg-white
-              text-black
-              rounded-xl
-              font-semibold
-            "
-          >
-            Play Demo
-          </a>
+      {/* COVER */}
 
-          <a
-            href={project.github}
-            target="_blank"
-            className="
-              px-6 py-3
-              border
-              border-zinc-700
-              rounded-xl
-            "
-          >
-            GitHub
-          </a>
+      <section className="mt-16">
+
+        <div className="relative overflow-hidden rounded-3xl border border-zinc-800">
+
+          <Image
+            src={cover}
+            alt={project.title}
+            width={1600}
+            height={900}
+            className="w-full object-cover"
+          />
 
         </div>
 
       </section>
 
-      {/* COVER IMAGE */}
+      {/* STATS */}
 
       <section className="mt-16">
 
-        <img
-          src="/projects/spy-fiction/cover.png"
-          alt="Spy Fiction Cover"
-          className="
-            w-full
-            rounded-3xl
-            border
-            border-zinc-800
-          "
-        />
+        <div className="grid md:grid-cols-4 gap-4">
 
-      </section>
+          <div className="bg-zinc-900 p-6 rounded-xl">
+            <p className="text-zinc-500">
+              Engine
+            </p>
 
-      {/* TECH STACK */}
+            <p className="font-bold mt-2">
+              {project.engine}
+            </p>
+          </div>
 
-      <section className="mt-16">
+          <div className="bg-zinc-900 p-6 rounded-xl">
+            <p className="text-zinc-500">
+              Role
+            </p>
 
-        <h2 className="text-3xl font-bold mb-6">
-          Technologies
-        </h2>
+            <p className="font-bold mt-2">
+              {project.role}
+            </p>
+          </div>
 
-        <div className="flex flex-wrap gap-3">
+          <div className="bg-zinc-900 p-6 rounded-xl">
+            <p className="text-zinc-500">
+              Duration
+            </p>
 
-          {project.technologies.map((tech) => (
-            <span
-              key={tech}
-              className="
-                px-4
-                py-2
-                rounded-lg
-                bg-zinc-900
-              "
-            >
-              {tech}
-            </span>
-          ))}
+            <p className="font-bold mt-2">
+              {project.duration}
+            </p>
+          </div>
+
+          <div className="bg-zinc-900 p-6 rounded-xl">
+            <p className="text-zinc-500">
+              Platform
+            </p>
+
+            <p className="font-bold mt-2">
+              PC
+            </p>
+          </div>
 
         </div>
 
@@ -140,172 +135,136 @@ export default async function ProjectPage({
 
       </section>
 
-      {/* WHAT */}
+      {/* TECHNOLOGIES */}
 
       <section className="mt-20">
 
         <h2 className="text-4xl font-bold mb-6">
-          What
+          Technologies
         </h2>
 
-        <p className="text-zinc-400 leading-8">
-          Spy-Fiction is a stealth-driven spy thriller
-          where players infiltrate hostile facilities,
-          recover classified intelligence, avoid enemy
-          patrols, and uncover hidden conspiracies.
-        </p>
+        <div className="flex flex-wrap gap-3">
 
-      </section>
-
-      {/* WHY */}
-
-      <section className="mt-20">
-
-        <h2 className="text-4xl font-bold mb-6">
-          Why
-        </h2>
-
-        <p className="text-zinc-400 leading-8">
-          The project was created to explore stealth
-          gameplay, enemy AI systems, environmental
-          storytelling, and narrative-driven level
-          design while building a complete commercial
-          quality game prototype.
-        </p>
-
-      </section>
-
-      {/* HOW */}
-
-      <section className="mt-20">
-
-        <h2 className="text-4xl font-bold mb-6">
-          How
-        </h2>
-
-        <div className="space-y-8">
-
-          <div>
-            <h3 className="text-2xl font-bold">
-              Enemy AI
-            </h3>
-
-            <p className="text-zinc-400 mt-2">
-              Patrol routes, detection systems,
-              investigation states, and stealth
-              awareness mechanics.
-            </p>
-          </div>
-
-          <div>
-            <h3 className="text-2xl font-bold">
-              Dialogue System
-            </h3>
-
-            <p className="text-zinc-400 mt-2">
-              Interactive dialogue and story delivery
-              through documents and conversations.
-            </p>
-          </div>
-
-          <div>
-            <h3 className="text-2xl font-bold">
-              Level Design
-            </h3>
-
-            <p className="text-zinc-400 mt-2">
-              Designed around player choice,
-              exploration, and stealth-focused
-              navigation paths.
-            </p>
-          </div>
+          {project.technologies.map((tech) => (
+            <span
+              key={tech}
+              className="
+                px-4
+                py-2
+                rounded-xl
+                bg-zinc-900
+                border
+                border-zinc-800
+              "
+            >
+              {tech}
+            </span>
+          ))}
 
         </div>
 
       </section>
 
-      {/* CHALLENGES */}
+      {/* TRAILER */}
 
-      <section className="mt-20">
+      {project.trailer && (
+        <section className="mt-20">
 
-        <h2 className="text-4xl font-bold mb-6">
-          Challenges
-        </h2>
+          <h2 className="text-4xl font-bold mb-8">
+            Gameplay
+          </h2>
 
-        <ul className="space-y-4 text-zinc-400">
+          <video
+            controls
+            autoPlay
+            muted
+            loop
+            className="
+              w-full
+              rounded-3xl
+              border
+              border-zinc-800
+            "
+          >
+            <source
+              src={project.trailer}
+              type="video/mp4"
+            />
+          </video>
 
-          <li>
-            • Balancing stealth gameplay and player
-            freedom.
-          </li>
-
-          <li>
-            • Designing AI that feels intelligent
-            without becoming frustrating.
-          </li>
-
-          <li>
-            • Integrating story progression into
-            gameplay exploration.
-          </li>
-
-        </ul>
-
-      </section>
-
-      {/* LESSONS */}
-
-      <section className="mt-20">
-
-        <h2 className="text-4xl font-bold mb-6">
-          Lessons Learned
-        </h2>
-
-        <p className="text-zinc-400 leading-8">
-          Through Spy-Fiction I improved my skills in
-          Unity architecture, AI programming,
-          narrative design, debugging large systems,
-          and managing a long-term solo game
-          development project.
-        </p>
-
-      </section>
+        </section>
+      )}
 
       {/* SCREENSHOTS */}
 
-      <section className="mt-20">
+      {project.screenshots &&
+        project.screenshots.length > 0 && (
+          <section className="mt-20">
 
-        <h2 className="text-4xl font-bold mb-8">
-          Screenshots
-        </h2>
+            <h2 className="text-4xl font-bold mb-8">
+              Gallery
+            </h2>
 
-        <div className="grid md:grid-cols-3 gap-4">
+            <div className="grid md:grid-cols-2 gap-6">
 
-          <img
-            src="/projects/spy-fiction/screenshot 1.png"
-            alt=""
-            className="rounded-xl border border-zinc-800"
-          />
+              {project.screenshots.map(
+                (image, index) => (
+                  <Image
+                    key={index}
+                    src={image}
+                    alt={`${project.title} Screenshot`}
+                    width={1200}
+                    height={675}
+                    className="
+                      rounded-2xl
+                      border
+                      border-zinc-800
+                    "
+                  />
+                )
+              )}
 
-          <img
-            src="/projects/spy-fiction/screenshot 2.png"
-            alt=""
-            className="rounded-xl border border-zinc-800"
-          />
+            </div>
 
-          <img
-            src="/projects/spy-fiction/screenshot 3.png"
-            alt=""
-            className="rounded-xl border border-zinc-800"
-          />
+          </section>
+        )}
 
-          <img
-            src="/projects/spy-fiction/screenshot 4.png"
-            alt=""
-            className="rounded-xl border border-zinc-800"
-          />
+      {/* LINKS */}
 
-        </div>
+      <section className="mt-20 flex gap-4 flex-wrap">
+
+        {project.itch && (
+          <a
+            href={project.itch}
+            target="_blank"
+            className="
+              px-8
+              py-4
+              bg-white
+              text-black
+              rounded-xl
+              font-semibold
+            "
+          >
+            Play on Itch.io
+          </a>
+        )}
+
+        {project.github && (
+          <a
+            href={project.github}
+            target="_blank"
+            className="
+              px-8
+              py-4
+              border
+              border-zinc-700
+              rounded-xl
+            "
+          >
+            View Source
+          </a>
+        )}
 
       </section>
 

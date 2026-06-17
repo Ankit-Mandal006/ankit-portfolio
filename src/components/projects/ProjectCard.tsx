@@ -1,124 +1,70 @@
 import Link from "next/link";
+import Image from "next/image";
 
 type Props = {
+  slug: string;
   title: string;
   description: string;
-  slug: string;
+  cover?: string;
 };
 
 export default function ProjectCard({
+  slug,
   title,
   description,
-  slug,
+  cover,
 }: Props) {
   return (
     <Link href={`/projects/${slug}`}>
-
-      <div
+      <article
         className="
           group
-          relative
           overflow-hidden
-
-          p-8
-
           rounded-3xl
-
           border
           border-zinc-800
-
           bg-zinc-950
-
+          hover:border-cyan-400/40
           transition-all
           duration-300
-
-          hover:-translate-y-2
-          hover:border-cyan-400/50
-          hover:shadow-[0_0_40px_rgba(34,211,238,0.08)]
         "
       >
-
-        {/* Glow Effect */}
-
-        <div
+        <Image
+          src={cover || "/defaults/project-cover.png"}
+          alt={title}
+          width={1200}
+          height={675}
           className="
-            absolute
-            inset-0
-
-            opacity-0
-            group-hover:opacity-100
-
-            transition-opacity
+            w-full
+            h-64
+            object-cover
+            group-hover:scale-105
+            transition-transform
             duration-500
-
-            bg-gradient-to-br
-            from-cyan-400/5
-            to-transparent
           "
         />
 
-        {/* Content */}
-
-        <div className="relative z-10">
-
+        <div className="p-8">
           <h3
             className="
               text-3xl
               font-bold
-
-              transition-colors
-              duration-300
-
               group-hover:text-cyan-300
+              transition
             "
           >
             {title}
           </h3>
 
-          <p
-            className="
-              mt-4
-              text-zinc-400
-              leading-relaxed
-            "
-          >
+          <p className="mt-4 text-zinc-400">
             {description}
           </p>
 
-          <div
-            className="
-              mt-8
-
-              flex
-              items-center
-              gap-2
-
-              text-cyan-300
-              font-medium
-            "
-          >
-
-            <span>
-              View Case Study
-            </span>
-
-            <span
-              className="
-                transition-transform
-                duration-300
-
-                group-hover:translate-x-2
-              "
-            >
-              →
-            </span>
-
-          </div>
-
+          <p className="mt-6 text-cyan-300">
+            View Case Study →
+          </p>
         </div>
-
-      </div>
-
+      </article>
     </Link>
   );
 }

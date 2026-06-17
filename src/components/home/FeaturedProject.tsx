@@ -1,68 +1,61 @@
-"use client";
-
-import { motion } from "framer-motion";
 import Link from "next/link";
+import { getProjects } from "@/lib/projects";
 
-export default function FeaturedProject() {
+export default async function FeaturedProject() {
+  const projects = await getProjects();
+
+  const featuredProjects =
+    projects.filter(
+      (project) => project.featured
+    );
+
   return (
-    <motion.section
-      initial={{
-        opacity: 0,
-        y: 50,
-      }}
-      whileInView={{
-        opacity: 1,
-        y: 0,
-      }}
-      viewport={{
-        once: true,
-      }}
-      transition={{
-        duration: 0.7,
-      }}
+    <section
       className="
-        max-w-6xl
+        max-w-7xl
         mx-auto
         px-8
         py-24
       "
     >
-
       <p className="text-cyan-300 uppercase tracking-widest mb-4">
-        Featured Project
+        Featured Projects
       </p>
 
-      <div className="bg-zinc-900 rounded-3xl p-10">
+      <div className="grid lg:grid-cols-3 gap-6">
 
-        <h2 className="text-5xl font-black">
-          Spy-Fiction
-        </h2>
+        {featuredProjects.map((project) => (
+          <Link
+            key={project.slug}
+            href={`/projects/${project.slug}`}
+          >
+            <div
+              className="
+                bg-zinc-900
+                rounded-3xl
+                p-8
+                border
+                border-zinc-800
+                hover:border-cyan-400/40
+                transition
+              "
+            >
+              <h2 className="text-3xl font-black">
+                {project.title}
+              </h2>
 
-        <p className="mt-6 text-zinc-400 text-lg max-w-3xl">
-          A stealth-driven spy thriller where players
-          infiltrate hostile facilities, collect
-          classified intelligence, avoid detection,
-          and uncover hidden conspiracies.
-        </p>
+              <p className="mt-4 text-zinc-400">
+                {project.tagline}
+              </p>
 
-        <Link
-          href="/projects/spy-fiction"
-          className="
-            inline-block
-            mt-8
-            px-8
-            py-4
-            bg-white
-            text-black
-            rounded-xl
-            font-semibold
-          "
-        >
-          View Case Study
-        </Link>
+              <p className="mt-6 text-cyan-300">
+                View Project →
+              </p>
+            </div>
+          </Link>
+        ))}
 
       </div>
-
-    </motion.section>
+    </section>
   );
 }
