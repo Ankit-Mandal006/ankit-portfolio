@@ -1,6 +1,7 @@
-import projects from "@/data/projects.json";
+import { supabase } from "./supabase";
 
 export type Project = {
+  id: number;
   slug: string;
   title: string;
   tagline: string;
@@ -8,9 +9,9 @@ export type Project = {
   engine: string;
   role: string;
   duration: string;
-  technologies: string[];
   cover?: string;
   screenshots?: string[];
+  technologies?: string[];
   trailer?: string;
   itch?: string;
   github?: string;
@@ -18,14 +19,34 @@ export type Project = {
 };
 
 export async function getProjects() {
-  return projects as Project[];
+  const { data, error } =
+    await supabase
+      .from("projects")
+      .select("*")
+      .order("id");
+
+  if (error) {
+    console.error(error);
+    return [];
+  }
+
+  return data as Project[];
 }
 
-export async function getProject(slug: string) {
-  const allProjects =
-    projects as Project[];
+export async function getProject(
+  slug: string
+) {
+  const { data, error } =
+    await supabase
+      .from("projects")
+      .select("*")
+      .eq("slug", slug)
+      .single();
 
-  return allProjects.find(
-    (project) => project.slug === slug
-  );
+  if (error) {
+    console.error(error);
+    return null;
+  }
+
+  return data as Project;
 }

@@ -145,21 +145,29 @@ export default async function ProjectPage({
 
         <div className="flex flex-wrap gap-3">
 
-          {project.technologies.map((tech) => (
-            <span
-              key={tech}
-              className="
-                px-4
-                py-2
-                rounded-xl
-                bg-zinc-900
-                border
-                border-zinc-800
-              "
-            >
-              {tech}
-            </span>
-          ))}
+          {project.technologies?.length ? (
+  <div className="flex flex-wrap gap-3">
+    {project.technologies.map((tech) => (
+      <span
+        key={tech}
+        className="
+          px-4
+          py-2
+          rounded-xl
+          bg-zinc-900
+          border
+          border-zinc-800
+        "
+      >
+        {tech}
+      </span>
+    ))}
+  </div>
+) : (
+  <p className="text-zinc-500">
+    Technologies coming soon.
+  </p>
+)}
 
         </div>
 
@@ -270,4 +278,5 @@ export default async function ProjectPage({
 
     </main>
   );
+  
 }
