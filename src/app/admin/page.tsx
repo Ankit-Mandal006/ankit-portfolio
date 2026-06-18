@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getProjects } from "@/lib/projects";
+import { signOut } from "./actions"; // Import the logout action
 
 export default async function AdminPage() {
   const projects = await getProjects();
@@ -19,19 +20,44 @@ export default async function AdminPage() {
           </h1>
         </div>
 
-        <Link
-          href="/admin/new"
-          className="
-            px-6
-            py-3
-            bg-cyan-400
-            text-black
-            rounded-xl
-            font-semibold
-          "
-        >
-          + New Project
-        </Link>
+        <div className="flex items-center gap-4">
+          {/* Form to handle server-side cookie deletion */}
+          <form action={signOut}>
+            <button
+              type="submit"
+              className="
+                px-6
+                py-3
+                border
+                border-zinc-800
+                text-zinc-400
+                hover:text-red-400
+                hover:border-red-500/30
+                rounded-xl
+                font-semibold
+                transition-colors
+              "
+            >
+              Sign Out
+            </button>
+          </form>
+
+          <Link
+            href="/admin/new"
+            className="
+              px-6
+              py-3
+              bg-cyan-400
+              text-black
+              rounded-xl
+              font-semibold
+              hover:bg-cyan-300
+              transition-colors
+            "
+          >
+            + New Project
+          </Link>
+        </div>
 
       </div>
 
@@ -89,6 +115,8 @@ export default async function AdminPage() {
                   py-2
                   rounded-lg
                   bg-zinc-800
+                  hover:bg-zinc-700
+                  transition-colors
                 "
               >
                 Edit

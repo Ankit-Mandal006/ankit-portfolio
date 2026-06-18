@@ -1,4 +1,4 @@
-import { supabase } from "./supabase";
+import { createAdminClient } from "./supabaseAdmin";
 
 export type Project = {
   id: number;
@@ -19,11 +19,13 @@ export type Project = {
 };
 
 export async function getProjects() {
-  const { data, error } =
-    await supabase
-      .from("projects")
-      .select("*")
-      .order("id");
+  // Use the admin client here
+  const supabase = await createAdminClient();
+
+  const { data, error } = await supabase
+    .from("projects")
+    .select("*")
+    .order("id");
 
   if (error) {
     console.error(error);
@@ -33,15 +35,15 @@ export async function getProjects() {
   return data as Project[];
 }
 
-export async function getProject(
-  slug: string
-) {
-  const { data, error } =
-    await supabase
-      .from("projects")
-      .select("*")
-      .eq("slug", slug)
-      .single();
+export async function getProject(slug: string) {
+  // Use the admin client here
+  const supabase = await createAdminClient();
+
+  const { data, error } = await supabase
+    .from("projects")
+    .select("*")
+    .eq("slug", slug)
+    .single();
 
   if (error) {
     console.error(error);
