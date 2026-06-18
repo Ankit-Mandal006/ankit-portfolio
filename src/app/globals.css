@@ -35,4 +35,79 @@ body::before {
   pointer-events: none;
   z-index: -1;
 }
+/* ==========================================
+   MARKDOWN DEVLOG STYLES (Pure CSS Native)
+   ========================================== */
+.chunk-markdown h1 {
+  font-size: 1.875rem; /* text-3xl */
+  font-weight: 700;    /* font-bold */
+  color: #ffffff;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
 
+.chunk-markdown h2 {
+  font-size: 1.5rem;   /* text-2xl */
+  font-weight: 600;    /* font-semibold */
+  color: #ffffff;
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid rgba(63, 63, 70, 0.8); /* border-zinc-800/80 */
+  padding-bottom: 0.5rem;
+}
+
+.chunk-markdown h3 {
+  font-size: 1.25rem;  /* text-xl */
+  font-weight: 500;    /* font-medium */
+  color: #22d3ee;      /* text-cyan-400 */
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.chunk-markdown p {
+  color: #a1a1aa;      /* text-zinc-400 */
+  line-height: 2rem;   /* leading-8 */
+  font-size: 1.125rem; /* text-lg */
+  margin-bottom: 1.5rem;
+}
+
+.chunk-markdown ul {
+  list-style-type: disc;
+  list-style-position: inside;
+  margin-bottom: 1.5rem;
+  color: #a1a1aa;
+  font-size: 1.125rem;
+  padding-left: 0.5rem;
+}
+
+.chunk-markdown ul li, 
+.chunk-markdown ol li {
+  margin-bottom: 0.5rem; /* space-y-2 alternative */
+}
+
+.chunk-markdown ol {
+  list-style-type: decimal;
+  list-style-position: inside;
+  margin-bottom: 1.5rem;
+  color: #a1a1aa;
+  font-size: 1.125rem;
+  padding-left: 0.5rem;
+}
+
+.chunk-markdown strong {
+  color: #f4f4f5;      /* text-zinc-100 */
+  font-weight: 700;
+}
+
+.chunk-markdown blockquote {
+  border-left: 4px solid #22d3ee; /* border-cyan-400 */
+  background-color: rgba(39, 39, 42, 0.4); /* bg-zinc-900/44 */
+  padding: 1.25rem;
+  border-top-right-radius: 1rem;
+  border-bottom-right-radius: 1rem;
+  font-style: italic;
+  margin: 1.5rem 0;
+  color: #a1a1aa;
+  line-height: 1.75rem;
+  display: block;
+}
