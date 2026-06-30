@@ -30,7 +30,7 @@ export default async function AdminLayout({
     const sessionAge = nowInSeconds - session.expires_at + session.expires_in; 
     
     // TEMPORARY TESTING LIMIT: 10 seconds
-    const ALLOWED_LIMIT_SECONDS = 10; 
+    const ALLOWED_LIMIT_SECONDS = 3600; 
 
     if (sessionAge > ALLOWED_LIMIT_SECONDS) {
       // Force destroy the session on the backend because it's too old

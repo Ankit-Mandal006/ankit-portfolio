@@ -1,6 +1,7 @@
 import { getProject } from "@/lib/projects";
 import { updateProject } from "../../actions";
 import Link from "next/link"; // For the cancel button
+import ImageUploader from "@/components/admin/ImageUploader";
 
 export default async function EditProjectPage({
   params,
@@ -109,27 +110,41 @@ export default async function EditProjectPage({
             />
           </div>
         </div>
+<div className="grid md:grid-cols-2 gap-6">
 
-        <div className="grid md:grid-cols-2 gap-6">
-          <div>
-            <label className="block mb-2 font-semibold text-zinc-400">Cover Image URL</label>
-            <input
-              name="cover"
-              defaultValue={project.cover}
-              className="w-full p-4 rounded-xl bg-zinc-900 border border-zinc-800 focus:outline-none focus:border-cyan-400"
-            />
-          </div>
+  <div>
+    <label className="block mb-2 font-semibold text-zinc-400">
+      Cover Image
+    </label>
 
-          <div>
-            <label className="block mb-2 font-semibold text-zinc-400">Trailer URL</label>
-            <input
-              name="trailer"
-              defaultValue={project.trailer}
-              className="w-full p-4 rounded-xl bg-zinc-900 border border-zinc-800 focus:outline-none focus:border-cyan-400"
-            />
-          </div>
-        </div>
+    <ImageUploader
+      name="cover"
+      defaultValue={project.cover || ""}
+    />
+  </div>
 
+  <div>
+    <label className="block mb-2 font-semibold text-zinc-400">
+      Trailer URL
+    </label>
+
+    <input
+      name="trailer"
+      defaultValue={project.trailer}
+      className="
+        w-full
+        p-4
+        rounded-xl
+        bg-zinc-900
+        border
+        border-zinc-800
+        focus:outline-none
+        focus:border-cyan-400
+      "
+    />
+  </div>
+
+</div>
         <div className="grid md:grid-cols-2 gap-6">
           <div>
             <label className="block mb-2 font-semibold text-zinc-400">Itch.io Link</label>
