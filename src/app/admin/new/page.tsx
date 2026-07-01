@@ -1,5 +1,6 @@
 import { createProject } from "../actions";
 import NewProjectForm from "@/components/admin/NewProjectForm";
+import GalleryUploader from "@/components/admin/GalleryUploader";
 
 export default function NewProjectPage() {
   return (
@@ -9,6 +10,15 @@ export default function NewProjectPage() {
       </h1>
 
       <NewProjectForm action={createProject} />
+      <div>
+  <label className="block mb-2 font-semibold">
+    Screenshots
+  </label>
+
+  <GalleryUploader
+    name="screenshots"
+  />
+</div>
     </main>
   );
 }

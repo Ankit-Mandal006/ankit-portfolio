@@ -12,6 +12,7 @@ export default async function ProjectPage({
   const { slug } = await params;
 
   const project = await getProject(slug);
+  
 
   if (!project) {
     return (

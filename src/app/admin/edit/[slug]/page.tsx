@@ -2,6 +2,7 @@ import { getProject } from "@/lib/projects";
 import { updateProject } from "../../actions";
 import Link from "next/link"; // For the cancel button
 import ImageUploader from "@/components/admin/ImageUploader";
+import GalleryUploader from "@/components/admin/GalleryUploader";
 
 export default async function EditProjectPage({
   params,
@@ -122,7 +123,16 @@ export default async function EditProjectPage({
       defaultValue={project.cover || ""}
     />
   </div>
+<div>
+  <label className="block mb-2 font-semibold text-zinc-400">
+    Screenshots
+  </label>
 
+  <GalleryUploader
+    name="screenshots"
+    defaultValue={project.screenshots || []}
+  />
+</div>
   <div>
     <label className="block mb-2 font-semibold text-zinc-400">
       Trailer URL

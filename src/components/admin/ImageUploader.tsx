@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { createClientSide } from "@/lib/supabase";
 
 type Props = {
@@ -12,8 +13,8 @@ export default function ImageUploader({
   name,
   defaultValue = "",
 }: Props) {
+  const [image, setImage] = useState(defaultValue);
   const [uploading, setUploading] = useState(false);
-  const [imageUrl, setImageUrl] = useState(defaultValue);
 
   async function handleUpload(
     e: React.ChangeEvent<HTMLInputElement>
@@ -44,25 +45,18 @@ export default function ImageUploader({
       .from("projects")
       .getPublicUrl(fileName);
 
-    setImageUrl(publicUrl);
+    setImage(publicUrl);
     setUploading(false);
   }
 
   return (
     <div className="space-y-4">
+
       <input
         type="hidden"
         name={name}
-        value={imageUrl}
+        value={image}
       />
-
-      {imageUrl && (
-        <img
-          src={imageUrl}
-          alt="Preview"
-          className="w-64 rounded-xl border border-zinc-800"
-        />
-      )}
 
       <input
         type="file"
@@ -71,10 +65,27 @@ export default function ImageUploader({
       />
 
       {uploading && (
-        <p className="text-cyan-300">
+        <p className="text-cyan-400">
           Uploading...
         </p>
       )}
+
+      {image && (
+        <Image
+          src={image}
+          alt="Cover Preview"
+          width={800}
+          height={450}
+          className="
+            rounded-2xl
+            border
+            border-zinc-800
+            max-h-80
+            object-cover
+          "
+        />
+      )}
+
     </div>
   );
 }
