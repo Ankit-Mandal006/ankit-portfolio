@@ -3,6 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import ReactMarkdown from "react-markdown"; // NEW: Core rendering parser
 import remarkGfm from "remark-gfm";       // NEW: Markdown features extension
+import ProjectGallery from "@/components/projects/ProjectGallery";
 
 export default async function ProjectPage({
   params,
@@ -142,25 +143,26 @@ export default async function ProjectPage({
       )}
 
       {/* SCREENSHOTS */}
-      {project.screenshots && project.screenshots.length > 0 && (
-        <section className="mt-20">
-          <h2 className="text-4xl font-bold mb-8">
-            Gallery
-          </h2>
-          <div className="grid md:grid-cols-2 gap-6">
-            {project.screenshots.map((image, index) => (
-              <Image
-                key={index}
-                src={image}
-                alt={`${project.title} Screenshot`}
-                width={1200}
-                height={675}
-                className="rounded-2xl border border-zinc-800"
-              />
-            ))}
-          </div>
-        </section>
-      )}
+{project.screenshots && project.screenshots.length > 0 && (
+  <section className="mt-24">
+    <div className="flex items-center justify-between mb-10">
+      <div>
+        <p className="text-cyan-300 uppercase tracking-widest text-sm">
+          Gallery
+        </p>
+
+        <h2 className="text-5xl font-black mt-2">
+          Screenshots
+        </h2>
+      </div>
+    </div>
+
+    <ProjectGallery
+      images={project.screenshots}
+      title={project.title}
+    />
+  </section>
+)}
 
       {/* LINKS */}
       <section className="mt-20 flex gap-4 flex-wrap">
