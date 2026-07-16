@@ -1,9 +1,13 @@
 import { getProject } from "@/lib/projects";
 import Link from "next/link";
 import Image from "next/image";
-import ReactMarkdown from "react-markdown"; // NEW: Core rendering parser
-import remarkGfm from "remark-gfm";       // NEW: Markdown features extension
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+
 import ProjectGallery from "@/components/projects/ProjectGallery";
+import ReadingProgress from "@/components/projects/ReadingProgress";
+import BackToTop from "@/components/projects/BackToTop";
+import Reveal from "@/components/ui/Reveal";
 
 export default async function ProjectPage({
   params,
@@ -13,14 +17,11 @@ export default async function ProjectPage({
   const { slug } = await params;
 
   const project = await getProject(slug);
-  
 
   if (!project) {
     return (
       <main className="max-w-6xl mx-auto px-8 pt-40">
-        <h1 className="text-5xl font-black">
-          Project Not Found
-        </h1>
+        <h1 className="text-5xl font-black">Project Not Found</h1>
       </main>
     );
   }
@@ -28,164 +29,237 @@ export default async function ProjectPage({
   const cover = project.cover || "/defaults/project-cover.png";
 
   return (
-    <main className="max-w-7xl mx-auto px-8 pt-40 pb-24">
+    <>
+      <ReadingProgress />
+      <BackToTop />
 
-      <Link
-        href="/projects"
-        className="text-cyan-300 hover:text-cyan-200"
-      >
-        ← Back to Projects
-      </Link>
+      <main className="max-w-7xl mx-auto px-6 lg:px-8 pt-36 pb-32">
 
-      {/* HERO */}
-      <section className="mt-10">
-        <p className="text-cyan-300 uppercase tracking-widest">
-          Project
-        </p>
-        <h1 className="text-6xl md:text-8xl font-black mt-4">
-          {project.title}
-        </h1>
-        <p className="text-zinc-400 text-2xl mt-6 max-w-4xl">
-          {project.tagline}
-        </p>
-      </section>
+        {/* Back */}
+        <Link
+          href="/projects"
+          className="inline-flex items-center gap-2 text-cyan-300 hover:text-cyan-200 transition-colors"
+        >
+          ← Back to Projects
+        </Link>
 
-      {/* COVER */}
-      <section className="mt-16">
-        <div className="relative overflow-hidden rounded-3xl border border-zinc-800">
-          <Image
-            src={cover}
-            alt={project.title}
-            width={1600}
-            height={900}
-            className="w-full object-cover"
-          />
-        </div>
-      </section>
-
-      {/* STATS */}
-      <section className="mt-16">
-        <div className="grid md:grid-cols-4 gap-4">
-          <div className="bg-zinc-900 p-6 rounded-xl">
-            <p className="text-zinc-500">Engine</p>
-            <p className="font-bold mt-2">{project.engine}</p>
-          </div>
-          <div className="bg-zinc-900 p-6 rounded-xl">
-            <p className="text-zinc-500">Role</p>
-            <p className="font-bold mt-2">{project.role}</p>
-          </div>
-          <div className="bg-zinc-900 p-6 rounded-xl">
-            <p className="text-zinc-500">Duration</p>
-            <p className="font-bold mt-2">{project.duration}</p>
-          </div>
-          <div className="bg-zinc-900 p-6 rounded-xl">
-            <p className="text-zinc-500">Platform</p>
-            <p className="font-bold mt-2">PC</p>
-          </div>
-        </div>
-      </section>
-
-      {/* DEVLOG OVERVIEW (UPDATED) */}
-      <section className="mt-20 border-t border-zinc-800/60 pt-16">
-        <h2 className="text-4xl font-bold mb-8">
-          Project Devlog
-        </h2>
-        
-        {/* The Markdown Processor Container */}
-        <article className="prose prose-invert max-w-none chunk-markdown">
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>
-            {project.description}
-          </ReactMarkdown>
-        </article>
-      </section>
-
-      {/* TECHNOLOGIES */}
-      <section className="mt-20">
-        <h2 className="text-4xl font-bold mb-6">
-          Technologies
-        </h2>
-        <div className="flex flex-wrap gap-3">
-          {project.technologies?.length ? (
-            <div className="flex flex-wrap gap-3">
-              {project.technologies.map((tech) => (
-                <span
-                  key={tech}
-                  className="px-4 py-2 rounded-xl bg-zinc-900 border border-zinc-800"
-                >
-                  {tech}
-                </span>
-              ))}
-            </div>
-          ) : (
-            <p className="text-zinc-500">
-              Technologies coming soon.
+        {/* Hero */}
+        <Reveal>
+          <section className="mt-10">
+            <p className="uppercase tracking-[0.35em] text-cyan-300 text-sm">
+              PROJECT
             </p>
-          )}
-        </div>
-      </section>
 
-      {/* TRAILER */}
-      {project.trailer && (
-        <section className="mt-20">
-          <h2 className="text-4xl font-bold mb-8">
-            Gameplay
-          </h2>
-          <video
-            controls
-            autoPlay
-            muted
-            loop
-            className="w-full rounded-3xl border border-zinc-800"
-          >
-            <source src={project.trailer} type="video/mp4" />
-          </video>
+            <h1 className="text-5xl md:text-7xl font-black mt-5 leading-tight">
+              {project.title}
+            </h1>
+
+            <p className="text-zinc-400 text-xl mt-6 max-w-4xl leading-relaxed">
+              {project.tagline}
+            </p>
+          </section>
+        </Reveal>
+
+        {/* Cover */}
+        <Reveal>
+          <section className="mt-16">
+            <div className="overflow-hidden rounded-3xl border border-zinc-800 shadow-2xl">
+              <Image
+                src={cover}
+                alt={project.title}
+                width={1600}
+                height={900}
+                priority
+                className="w-full object-cover hover:scale-[1.02] transition duration-700"
+              />
+            </div>
+          </section>
+        </Reveal>
+
+        {/* Main Layout */}
+        <section className="mt-20 grid lg:grid-cols-[320px_1fr] gap-14">
+
+          {/* Sticky Sidebar */}
+          <aside className="lg:sticky lg:top-28 h-fit">
+
+            <Reveal>
+              <div className="rounded-3xl border border-zinc-800 bg-zinc-900/70 backdrop-blur-lg p-8 space-y-8">
+
+                <div>
+                  <p className="text-xs uppercase tracking-widest text-zinc-500">
+                    Engine
+                  </p>
+
+                  <p className="mt-2 font-bold text-lg">
+                    {project.engine || "Unknown"}
+                  </p>
+                </div>
+
+                <div>
+                  <p className="text-xs uppercase tracking-widest text-zinc-500">
+                    Role
+                  </p>
+
+                  <p className="mt-2 font-bold text-lg">
+                    {project.role || "Developer"}
+                  </p>
+                </div>
+
+                <div>
+                  <p className="text-xs uppercase tracking-widest text-zinc-500">
+                    Duration
+                  </p>
+
+                  <p className="mt-2 font-bold text-lg">
+                    {project.duration || "-"}
+                  </p>
+                </div>
+
+                <div>
+                  <p className="text-xs uppercase tracking-widest text-zinc-500">
+                    Platform
+                  </p>
+
+                  <p className="mt-2 font-bold text-lg">
+                    PC
+                  </p>
+                </div>
+
+                {(project.itch || project.github) && (
+                  <div className="pt-4 border-t border-zinc-800 space-y-3">
+
+                    {project.itch && (
+                      <a
+                        href={project.itch}
+                        target="_blank"
+                        className="block w-full text-center rounded-xl bg-cyan-400 text-black font-semibold py-3 hover:bg-cyan-300 transition"
+                      >
+                        Play Demo
+                      </a>
+                    )}
+
+                    {project.github && (
+                      <a
+                        href={project.github}
+                        target="_blank"
+                        className="block w-full text-center rounded-xl border border-zinc-700 py-3 hover:bg-zinc-800 transition"
+                      >
+                        GitHub
+                      </a>
+                    )}
+
+                  </div>
+                )}
+
+              </div>
+            </Reveal>
+
+          </aside>
+
+          {/* Content */}
+          <div className="space-y-24">
+
+            {/* Devlog */}
+            <Reveal>
+              <section>
+
+                <h2 className="text-4xl font-black mb-10">
+                  Development Log
+                </h2>
+
+                <article className="prose prose-invert max-w-none chunk-markdown">
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    {project.description}
+                  </ReactMarkdown>
+                </article>
+
+              </section>
+            </Reveal>
+
+            {/* Technologies */}
+            <Reveal>
+              <section>
+
+                <h2 className="text-4xl font-black mb-8">
+                  Technologies
+                </h2>
+
+                {project.technologies?.length ? (
+                  <div className="flex flex-wrap gap-4">
+
+                    {project.technologies.map((tech) => (
+                      <span
+                        key={tech}
+                        className="rounded-full px-5 py-3 bg-zinc-900 border border-zinc-800 hover:border-cyan-400 transition"
+                      >
+                        {tech}
+                      </span>
+                    ))}
+
+                  </div>
+                ) : (
+                  <p className="text-zinc-500">
+                    Technologies coming soon.
+                  </p>
+                )}
+
+              </section>
+            </Reveal>
+
+            {/* Trailer */}
+            {project.trailer && (
+              <Reveal>
+                <section>
+
+                  <h2 className="text-4xl font-black mb-8">
+                    Gameplay
+                  </h2>
+
+                  <video
+                    controls
+                    autoPlay
+                    muted
+                    loop
+                    className="w-full rounded-3xl border border-zinc-800"
+                  >
+                    <source
+                      src={project.trailer}
+                      type="video/mp4"
+                    />
+                  </video>
+
+                </section>
+              </Reveal>
+            )}
+
+            {/* Gallery */}
+            {project.screenshots &&
+              project.screenshots.length > 0 && (
+                <Reveal>
+                  <section>
+
+                    <p className="uppercase tracking-[0.35em] text-cyan-300 text-sm">
+                      Gallery
+                    </p>
+
+                    <h2 className="text-5xl font-black mt-3 mb-10">
+                      Screenshots
+                    </h2>
+
+                    <ProjectGallery
+                      images={project.screenshots}
+                      title={project.title}
+                    />
+
+                  </section>
+                </Reveal>
+              )}
+
+          </div>
+
         </section>
-      )}
 
-      {/* SCREENSHOTS */}
-{project.screenshots && project.screenshots.length > 0 && (
-  <section className="mt-24">
-    <div className="flex items-center justify-between mb-10">
-      <div>
-        <p className="text-cyan-300 uppercase tracking-widest text-sm">
-          Gallery
-        </p>
-
-        <h2 className="text-5xl font-black mt-2">
-          Screenshots
-        </h2>
-      </div>
-    </div>
-
-    <ProjectGallery
-      images={project.screenshots}
-      title={project.title}
-    />
-  </section>
-)}
-
-      {/* LINKS */}
-      <section className="mt-20 flex gap-4 flex-wrap">
-        {project.itch && (
-          <a
-            href={project.itch}
-            target="_blank"
-            className="px-8 py-4 bg-white text-black rounded-xl font-semibold hover:bg-zinc-200 transition-colors"
-          >
-            Play on Itch.io
-          </a>
-        )}
-        {project.github && (
-          <a
-            href={project.github}
-            target="_blank"
-            className="px-8 py-4 border border-zinc-700 rounded-xl hover:bg-zinc-900 transition-colors"
-          >
-            View Source
-          </a>
-        )}
-      </section>
-
-    </main>
+      </main>
+    </>
   );
 }

@@ -3,6 +3,7 @@ import { updateProject } from "../../actions";
 import Link from "next/link"; // For the cancel button
 import ImageUploader from "@/components/admin/ImageUploader";
 import GalleryUploader from "@/components/admin/GalleryUploader";
+import MarkdownEditor from "@/components/admin/MarkdownEditor";
 
 export default async function EditProjectPage({
   params,
@@ -75,12 +76,10 @@ export default async function EditProjectPage({
 
         <div>
           <label className="block mb-2 font-semibold text-zinc-400">Description</label>
-          <textarea
-            name="description"
-            rows={8}
-            defaultValue={project.description}
-            className="w-full p-4 rounded-xl bg-zinc-900 border border-zinc-800 focus:outline-none focus:border-cyan-400 resize-none"
-          />
+          <MarkdownEditor
+  name="description"
+  defaultValue={project.description}
+/>
         </div>
 
         <div className="grid md:grid-cols-3 gap-6">

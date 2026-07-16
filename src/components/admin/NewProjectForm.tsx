@@ -2,6 +2,7 @@
 
 import ImageUploader from "./ImageUploader";
 import GalleryUploader from "./GalleryUploader";
+import MarkdownEditor from "@/components/admin/MarkdownEditor";
 
 type Props = {
   action: (formData: FormData) => void;
@@ -61,11 +62,9 @@ export default function NewProjectForm({ action }: Props) {
           Description (Markdown Supported)
         </label>
 
-        <textarea
-          rows={12}
-          name="description"
-          className="w-full p-4 rounded-xl bg-zinc-900 border border-zinc-800"
-        />
+        <MarkdownEditor
+  name="description"
+/>
 
       </div>
 
