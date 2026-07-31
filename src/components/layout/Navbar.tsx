@@ -42,7 +42,7 @@ export default function Navbar() {
           ANKIT
         </Link>
 
-        <div className="flex gap-8">
+        <div className="flex items-center gap-8">
 
           <Link
             href="/projects"
@@ -65,6 +65,17 @@ export default function Navbar() {
           >
             Resume
           </Link>
+
+          <Link
+  href="/#contact"
+  className="
+    text-zinc-400
+    hover:text-cyan-300
+    transition
+  "
+>
+  Contact
+</Link>
 
         </div>
       </div>
