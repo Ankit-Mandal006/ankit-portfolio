@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 
 type Props = {
@@ -18,31 +17,40 @@ export default function CodeBlock({
 }: Props) {
   const [copied, setCopied] = useState(false);
 
-  const code = String(children).replace(/\n$/, "");
+  const code = String(children ?? "").replace(/\n$/, "");
 
   const language =
-    className?.replace("language-", "") || "";
+    className?.replace("language-", "") || "text";
 
   async function copyCode() {
-    await navigator.clipboard.writeText(code);
+    try {
+      await navigator.clipboard.writeText(code);
 
-    setCopied(true);
+      setCopied(true);
 
-    setTimeout(() => {
-      setCopied(false);
-    }, 2000);
+      setTimeout(() => {
+        setCopied(false);
+      }, 2000);
+    } catch (err) {
+      console.error(err);
+    }
   }
+
+  /* Inline code */
 
   if (inline) {
     return (
       <code
         className="
+          rounded-md
+          border
+          border-zinc-800
           bg-zinc-900
-          text-cyan-300
           px-2
           py-1
-          rounded
-          text-[0.95rem]
+          font-mono
+          text-[0.9rem]
+          text-cyan-300
         "
       >
         {children}
@@ -51,42 +59,81 @@ export default function CodeBlock({
   }
 
   return (
-    <div className="relative my-8">
+    <div
+      className="
+        relative
+        my-10
+        overflow-hidden
+        rounded-2xl
+        border
+        border-zinc-800
+        bg-zinc-950
+        shadow-[0_0_30px_rgba(0,0,0,0.35)]
+      "
+    >
+      {/* Header */}
 
-      <button
-        onClick={copyCode}
+      <div
         className="
-          absolute
-          top-4
-          right-4
-          z-10
-          rounded-lg
-          border
-          border-zinc-700
-          bg-zinc-900/90
-          px-3
-          py-2
-          text-sm
-          hover:border-cyan-400
-          transition
+          flex
+          items-center
+          justify-between
+          border-b
+          border-zinc-800
+          bg-zinc-900/80
+          px-4
+          py-3
         "
       >
-        {copied ? "Copied!" : "Copy"}
-      </button>
+        <span
+          className="
+            text-xs
+            uppercase
+            tracking-widest
+            text-cyan-400
+          "
+        >
+          {language}
+        </span>
+
+        <button
+          onClick={copyCode}
+          className="
+            rounded-lg
+            border
+            border-zinc-700
+            px-3
+            py-1.5
+            text-xs
+            text-zinc-300
+            hover:border-cyan-400
+            hover:text-cyan-300
+            transition
+          "
+        >
+          {copied ? "Copied!" : "Copy"}
+        </button>
+      </div>
+
+      {/* Code */}
 
       <SyntaxHighlighter
         language={language}
         style={oneDark}
+        showLineNumbers
+        wrapLongLines
         customStyle={{
-          borderRadius: "18px",
-          padding: "24px",
-          fontSize: "15px",
           margin: 0,
+          padding: "24px",
+          background: "#09090b",
+          borderRadius: "0",
+          fontSize: "14px",
+          fontFamily:
+            "JetBrains Mono, Fira Code, Consolas, monospace",
         }}
       >
         {code}
       </SyntaxHighlighter>
-
     </div>
   );
 }

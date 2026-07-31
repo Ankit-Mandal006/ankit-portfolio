@@ -1,8 +1,7 @@
 import { getProject } from "@/lib/projects";
 import Link from "next/link";
 import Image from "next/image";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
+import MarkdownRenderer from "@/components/projects/markdown/MarkdownRenderer";
 
 import ProjectGallery from "@/components/projects/ProjectGallery";
 import ReadingProgress from "@/components/projects/ReadingProgress";
@@ -33,9 +32,9 @@ export default async function ProjectPage({
       <ReadingProgress />
       <BackToTop />
 
-      <main className="max-w-7xl mx-auto px-6 lg:px-8 pt-36 pb-32">
+      <main className="max-w-[1600px] mx-auto px-6 lg:px-12 pt-36 pb-32">
 
-        {/* Back */}
+        {/* Back Link */}
         <Link
           href="/projects"
           className="inline-flex items-center gap-2 text-cyan-300 hover:text-cyan-200 transition-colors"
@@ -43,7 +42,7 @@ export default async function ProjectPage({
           ← Back to Projects
         </Link>
 
-        {/* Hero */}
+        {/* Hero Section */}
         <Reveal>
           <section className="mt-10">
             <p className="uppercase tracking-[0.35em] text-cyan-300 text-sm">
@@ -54,7 +53,7 @@ export default async function ProjectPage({
               {project.title}
             </h1>
 
-            <p className="text-zinc-400 text-xl mt-6 max-w-4xl leading-relaxed">
+            <p className="text-zinc-400 text-xl mt-6 max-w-5xl leading-relaxed">
               {project.tagline}
             </p>
           </section>
@@ -111,21 +110,21 @@ export default async function ProjectPage({
           </section>
         </Reveal>
 
-        {/* Main Layout */}
-        <section className="mt-20 grid lg:grid-cols-[320px_1fr] gap-14">
+        {/* Main Layout: Expanded Grid (420px Sidebar) */}
+        <section className="mt-20 grid lg:grid-cols-[420px_1fr] gap-12 items-start">
 
-          {/* Sticky Sidebar */}
-          <aside className="lg:sticky lg:top-28 h-fit">
+          {/* Sticky & Scrollable Sidebar */}
+          <aside className="lg:sticky lg:top-28 max-h-[calc(100vh-8rem)] overflow-y-auto pr-2 space-y-8 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
 
+            {/* Quick Metadata Box */}
             <Reveal>
-              <div className="rounded-3xl border border-zinc-800 bg-zinc-900/70 backdrop-blur-lg p-8 space-y-8">
+              <div className="rounded-3xl border border-zinc-800 bg-zinc-900/70 backdrop-blur-lg p-8 space-y-6">
 
                 <div>
                   <p className="text-xs uppercase tracking-widest text-zinc-500">
                     Engine
                   </p>
-
-                  <p className="mt-2 font-bold text-lg">
+                  <p className="mt-1 font-bold text-lg">
                     {project.engine || "Unknown"}
                   </p>
                 </div>
@@ -134,8 +133,7 @@ export default async function ProjectPage({
                   <p className="text-xs uppercase tracking-widest text-zinc-500">
                     Role
                   </p>
-
-                  <p className="mt-2 font-bold text-lg">
+                  <p className="mt-1 font-bold text-lg">
                     {project.role || "Developer"}
                   </p>
                 </div>
@@ -144,8 +142,7 @@ export default async function ProjectPage({
                   <p className="text-xs uppercase tracking-widest text-zinc-500">
                     Duration
                   </p>
-
-                  <p className="mt-2 font-bold text-lg">
+                  <p className="mt-1 font-bold text-lg">
                     {project.duration || "-"}
                   </p>
                 </div>
@@ -154,15 +151,13 @@ export default async function ProjectPage({
                   <p className="text-xs uppercase tracking-widest text-zinc-500">
                     Platform
                   </p>
-
-                  <p className="mt-2 font-bold text-lg">
+                  <p className="mt-1 font-bold text-lg">
                     PC
                   </p>
                 </div>
 
                 {(project.itch || project.github) && (
                   <div className="pt-4 border-t border-zinc-800 space-y-3">
-
                     {project.itch && (
                       <a
                         href={project.itch}
@@ -184,114 +179,88 @@ export default async function ProjectPage({
                         GitHub
                       </a>
                     )}
-
                   </div>
                 )}
 
               </div>
             </Reveal>
 
-          </aside>
-
-          {/* Content */}
-          <div className="space-y-24">
-
-            {/* Devlog */}
+            {/* Sidebar Section: Technologies */}
             <Reveal>
-              <section>
-
-                <h2 className="text-4xl font-black mb-10">
-                  Development Log
-                </h2>
-
-                <article className="prose prose-invert max-w-none chunk-markdown">
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                    {project.description}
-                  </ReactMarkdown>
-                </article>
-
-              </section>
-            </Reveal>
-
-            {/* Technologies */}
-            <Reveal>
-              <section>
-
-                <h2 className="text-4xl font-black mb-8">
+              <div className="rounded-3xl border border-zinc-800 bg-zinc-900/70 backdrop-blur-lg p-8">
+                <h3 className="text-xs uppercase tracking-widest text-zinc-500 mb-4">
                   Technologies
-                </h2>
+                </h3>
 
                 {project.technologies?.length ? (
-                  <div className="flex flex-wrap gap-4">
-
+                  <div className="flex flex-wrap gap-2">
                     {project.technologies.map((tech) => (
                       <span
                         key={tech}
-                        className="rounded-full px-5 py-3 bg-zinc-900 border border-zinc-800 hover:border-cyan-400 transition"
+                        className="rounded-full px-4 py-2 text-sm bg-zinc-900 border border-zinc-800 hover:border-cyan-400 transition"
                       >
                         {tech}
                       </span>
                     ))}
-
                   </div>
                 ) : (
-                  <p className="text-zinc-500">
+                  <p className="text-zinc-500 text-sm">
                     Technologies coming soon.
                   </p>
                 )}
-
-              </section>
+              </div>
             </Reveal>
 
-            {/* Trailer */}
+            {/* Sidebar Section: Gameplay Video Trailer */}
             {project.trailer && (
               <Reveal>
-                <section>
-
-                  <h2 className="text-4xl font-black mb-8">
-                    Gameplay
-                  </h2>
+                <div className="rounded-3xl border border-zinc-800 bg-zinc-900/70 backdrop-blur-lg p-8">
+                  <h3 className="text-xs uppercase tracking-widest text-zinc-500 mb-4">
+                    Gameplay Trailer
+                  </h3>
 
                   <video
                     controls
                     autoPlay
                     muted
                     loop
-                    className="w-full rounded-3xl border border-zinc-800"
+                    className="w-full rounded-2xl border border-zinc-800"
                   >
-                    <source
-                      src={project.trailer}
-                      type="video/mp4"
-                    />
+                    <source src={project.trailer} type="video/mp4" />
                   </video>
-
-                </section>
+                </div>
               </Reveal>
             )}
 
-            {/* Gallery */}
-            {project.screenshots &&
-              project.screenshots.length > 0 && (
-                <Reveal>
-                  <section>
+            {/* Sidebar Section: Gallery / Screenshots */}
+            {project.screenshots && project.screenshots.length > 0 && (
+              <Reveal>
+                <div className="rounded-3xl border border-zinc-800 bg-zinc-900/70 backdrop-blur-lg p-8">
+                  <h3 className="text-xs uppercase tracking-widest text-zinc-500 mb-4">
+                    Screenshots
+                  </h3>
 
-                    <p className="uppercase tracking-[0.35em] text-cyan-300 text-sm">
-                      Gallery
-                    </p>
+                  <ProjectGallery
+                    images={project.screenshots}
+                    title={project.title}
+                  />
+                </div>
+              </Reveal>
+            )}
 
-                    <h2 className="text-5xl font-black mt-3 mb-10">
-                      Screenshots
-                    </h2>
+          </aside>
 
-                    <ProjectGallery
-                      images={project.screenshots}
-                      title={project.title}
-                    />
+          {/* Main Content Area: Devlog */}
+          <div className="min-w-0">
+            <Reveal>
+              <section className="rounded-3xl border border-zinc-800/80 bg-zinc-900/30 p-8 sm:p-12">
+                <h2 className="text-4xl font-black mb-10 border-b border-zinc-800 pb-6">
+                  Development Log
+                </h2>
 
-                  </section>
-                </Reveal>
-              )}
-
+                <MarkdownRenderer content={project.description} />
+              </section>
+            </Reveal>
           </div>
 
         </section>
