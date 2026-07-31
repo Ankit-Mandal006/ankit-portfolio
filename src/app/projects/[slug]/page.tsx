@@ -60,18 +60,53 @@ export default async function ProjectPage({
           </section>
         </Reveal>
 
-        {/* Cover */}
+        {/* Cover Image with Hover Controls */}
         <Reveal>
           <section className="mt-16">
-            <div className="overflow-hidden rounded-3xl border border-zinc-800 shadow-2xl">
+            <div className="group relative overflow-hidden rounded-3xl border border-zinc-800 shadow-2xl">
               <Image
                 src={cover}
                 alt={project.title}
                 width={1600}
                 height={900}
                 priority
-                className="w-full object-cover hover:scale-[1.02] transition duration-700"
+                className="w-full object-cover hover:scale-[1.02] transition duration-700 group-hover:blur-sm group-hover:scale-105"
               />
+
+              {/* Hover Overlay */}
+              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-between p-8">
+                {/* Center Play Button */}
+                <div className="flex-1 flex items-center justify-center">
+                  {project.itch ? (
+                    <a
+                      href={project.itch}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-8 py-4 rounded-full bg-cyan-400 text-black font-bold text-lg hover:bg-cyan-300 transform hover:scale-105 transition duration-200 shadow-lg"
+                    >
+                      Play
+                    </a>
+                  ) : (
+                    <span className="px-6 py-3 rounded-full bg-zinc-800/80 text-zinc-400 font-semibold backdrop-blur-md">
+                      No Play Link Available
+                    </span>
+                  )}
+                </div>
+
+                {/* Bottom-Left Source Code Link */}
+                <div className="flex justify-start">
+                  {project.github && (
+                    <a
+                      href={project.github}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-white hover:text-cyan-300 font-medium text-base transition-colors duration-200 backdrop-blur-sm bg-black/30 px-4 py-2 rounded-lg"
+                    >
+                      View Source Code on GitHub →
+                    </a>
+                  )}
+                </div>
+              </div>
             </div>
           </section>
         </Reveal>
@@ -132,6 +167,7 @@ export default async function ProjectPage({
                       <a
                         href={project.itch}
                         target="_blank"
+                        rel="noopener noreferrer"
                         className="block w-full text-center rounded-xl bg-cyan-400 text-black font-semibold py-3 hover:bg-cyan-300 transition"
                       >
                         Play Demo
@@ -142,6 +178,7 @@ export default async function ProjectPage({
                       <a
                         href={project.github}
                         target="_blank"
+                        rel="noopener noreferrer"
                         className="block w-full text-center rounded-xl border border-zinc-700 py-3 hover:bg-zinc-800 transition"
                       >
                         GitHub

@@ -1,6 +1,6 @@
 import { getProject } from "@/lib/projects";
 import { updateProject } from "../../actions";
-import Link from "next/link"; // For the cancel button
+import Link from "next/link";
 import ImageUploader from "@/components/admin/ImageUploader";
 import GalleryUploader from "@/components/admin/GalleryUploader";
 import MarkdownEditor from "@/components/admin/MarkdownEditor";
@@ -40,7 +40,6 @@ export default async function EditProjectPage({
       </div>
 
       <form action={updateProject} className="space-y-8">
-        {/* Hidden field to keep track of old database lookup handle */}
         <input type="hidden" name="currentSlug" value={project.slug} />
 
         <div className="grid md:grid-cols-2 gap-6">
@@ -77,9 +76,9 @@ export default async function EditProjectPage({
         <div>
           <label className="block mb-2 font-semibold text-zinc-400">Description</label>
           <MarkdownEditor
-  name="description"
-  defaultValue={project.description}
-/>
+            name="description"
+            defaultValue={project.description}
+          />
         </div>
 
         <div className="grid md:grid-cols-3 gap-6">
@@ -110,53 +109,43 @@ export default async function EditProjectPage({
             />
           </div>
         </div>
-<div className="grid md:grid-cols-2 gap-6">
 
-  <div>
-    <label className="block mb-2 font-semibold text-zinc-400">
-      Cover Image
-    </label>
-
-    <ImageUploader
-      name="cover"
-      defaultValue={project.cover || ""}
-    />
-  </div>
-<div>
-  <label className="block mb-2 font-semibold text-zinc-400">
-    Screenshots
-  </label>
-
-  <GalleryUploader
-    name="screenshots"
-    defaultValue={project.screenshots || []}
-  />
-</div>
-  <div>
-    <label className="block mb-2 font-semibold text-zinc-400">
-      Trailer URL
-    </label>
-
-    <input
-      name="trailer"
-      defaultValue={project.trailer}
-      className="
-        w-full
-        p-4
-        rounded-xl
-        bg-zinc-900
-        border
-        border-zinc-800
-        focus:outline-none
-        focus:border-cyan-400
-      "
-    />
-  </div>
-
-</div>
         <div className="grid md:grid-cols-2 gap-6">
           <div>
-            <label className="block mb-2 font-semibold text-zinc-400">Itch.io Link</label>
+            <label className="block mb-2 font-semibold text-zinc-400">
+              Cover Image
+            </label>
+            <ImageUploader
+              name="cover"
+              defaultValue={project.cover || ""}
+            />
+          </div>
+
+          <div>
+            <label className="block mb-2 font-semibold text-zinc-400">
+              Screenshots
+            </label>
+            <GalleryUploader
+              name="screenshots"
+              defaultValue={project.screenshots || []}
+            />
+          </div>
+        </div>
+
+        <div>
+          <label className="block mb-2 font-semibold text-zinc-400">
+            Trailer URL
+          </label>
+          <input
+            name="trailer"
+            defaultValue={project.trailer}
+            className="w-full p-4 rounded-xl bg-zinc-900 border border-zinc-800 focus:outline-none focus:border-cyan-400"
+          />
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-6">
+          <div>
+            <label className="block mb-2 font-semibold text-zinc-400">Itch.io Link (Play Demo)</label>
             <input
               name="itch"
               type="url"
@@ -166,7 +155,7 @@ export default async function EditProjectPage({
           </div>
 
           <div>
-            <label className="block mb-2 font-semibold text-zinc-400">GitHub Link</label>
+            <label className="block mb-2 font-semibold text-zinc-400">GitHub Link (Source Code)</label>
             <input
               name="github"
               type="url"

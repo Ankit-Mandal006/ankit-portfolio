@@ -111,3 +111,8 @@ body::before {
   line-height: 1.75rem;
   display: block;
 }
+.hljs{
+    background:#0d1117!important;
+    border-radius:16px;
+    padding:20px!important;
+}
