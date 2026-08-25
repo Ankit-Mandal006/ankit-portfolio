@@ -29,12 +29,14 @@ export default async function ProjectsPage() {
 
         {projects.map((project) => (
           <ProjectCard
-            key={project.slug}
-            slug={project.slug}
-            title={project.title}
-            description={project.tagline}
-            cover={project.cover}
-          />
+  key={project.slug}
+  slug={project.slug}
+  title={project.title}
+  description={project.tagline}
+  cover={project.cover}
+  itch={project.itch}
+  github={project.github}
+/>
         ))}
 
       </div>
