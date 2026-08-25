@@ -7,11 +7,7 @@ import { Gamepad2, Palette, Mail } from "lucide-react";
 // Custom GitHub SVG Icon
 function GithubIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
-    <svg
-      fill="currentColor"
-      viewBox="0 0 24 24"
-      {...props}
-    >
+    <svg fill="currentColor" viewBox="0 0 24 24" {...props}>
       <path
         fillRule="evenodd"
         clipRule="evenodd"
@@ -24,11 +20,7 @@ function GithubIcon(props: React.SVGProps<SVGSVGElement>) {
 // Custom LinkedIn SVG Icon
 function LinkedinIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
-    <svg
-      fill="currentColor"
-      viewBox="0 0 24 24"
-      {...props}
-    >
+    <svg fill="currentColor" viewBox="0 0 24 24" {...props}>
       <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z" />
     </svg>
   );
@@ -72,30 +64,46 @@ export default function Hero() {
         items-center
         justify-center
         pt-24
+        pb-16
         overflow-hidden
+        text-white
+        font-sans
       "
     >
       {/* Background Glow */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(34,211,238,0.15),transparent_60%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(34,211,238,0.12),transparent_65%)]" />
 
       {/* Decorative Blur */}
-      <div className="absolute top-40 left-1/2 -translate-x-1/2 w-[700px] h-[700px] rounded-full bg-cyan-500/5 blur-3xl" />
+      <div className="absolute top-40 left-1/2 -translate-x-1/2 w-[700px] h-[700px] rounded-full bg-cyan-500/5 blur-3xl pointer-events-none" />
 
-      <div className="relative z-10 max-w-5xl text-center px-6">
-        <motion.p
+      <div className="relative z-10 max-w-5xl text-center px-6 flex flex-col items-center">
+        {/* HUD Subtitle / Status Badge */}
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           className="
-            uppercase
-            tracking-[0.4em]
-            text-cyan-300
+            inline-flex
+            items-center
+            gap-2
+            px-3.5
+            py-1.5
+            border
+            border-cyan-500/40
+            bg-zinc-950/80
+            backdrop-blur-md
             mb-6
+            hud-clip-sm
+            shadow-[0_0_15px_rgba(34,211,238,0.1)]
           "
         >
-          Unity Game Developer
-        </motion.p>
+          <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
+          <span className="font-mono text-xs uppercase tracking-[0.3em] text-cyan-300">
+            // SYS_ROLE :: UNITY_GAME_DEVELOPER //
+          </span>
+        </motion.div>
 
+        {/* Hero Title */}
         <motion.h1
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
@@ -108,6 +116,8 @@ export default function Hero() {
             md:text-9xl
             font-black
             leading-none
+            tracking-tight
+            drop-shadow-[0_0_25px_rgba(34,211,238,0.2)]
           "
         >
           ANKIT
@@ -118,6 +128,7 @@ export default function Hero() {
               bg-clip-text
               bg-gradient-to-r
               from-cyan-300
+              via-teal-200
               to-white
             "
           >
@@ -125,6 +136,7 @@ export default function Hero() {
           </span>
         </motion.h1>
 
+        {/* Bio Paragraph */}
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -134,7 +146,7 @@ export default function Hero() {
           }}
           className="
             mt-8
-            text-lg
+            text-base
             md:text-xl
             text-zinc-400
             max-w-3xl
@@ -165,17 +177,29 @@ export default function Hero() {
           <Link
             href="/projects"
             className="
+              group
+              flex
+              items-center
+              gap-2
+              bg-cyan-400
               px-8
               py-4
-              bg-white
+              font-mono
+              text-xs
+              font-bold
+              uppercase
+              tracking-wider
               text-black
-              rounded-xl
-              font-semibold
+              shadow-[0_0_20px_rgba(34,211,238,0.4)]
               transition-all
+              duration-300
               hover:scale-105
+              hover:bg-cyan-300
+              hud-clip-sm
             "
           >
-            View Projects
+            <span>&gt; VIEW_PROJECTS</span>
+            <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
           </Link>
 
           <a
@@ -183,17 +207,31 @@ export default function Hero() {
             target="_blank"
             rel="noopener noreferrer"
             className="
+              flex
+              items-center
+              gap-2
+              border
+              border-cyan-400/50
+              bg-zinc-950/80
               px-8
               py-4
-              border
-              border-zinc-700
-              rounded-xl
+              font-mono
+              text-xs
+              font-bold
+              uppercase
+              tracking-wider
+              text-cyan-300
+              backdrop-blur-md
+              shadow-[0_0_15px_rgba(34,211,238,0.05)]
               transition-all
+              duration-300
+              hover:scale-105
               hover:border-cyan-300
-              hover:text-cyan-300
+              hover:bg-zinc-900
+              hud-clip-sm
             "
           >
-            Resume
+            <span>&lt;/&gt; RESUME</span>
           </a>
         </motion.div>
 
@@ -229,24 +267,25 @@ export default function Hero() {
                   gap-2.5
                   px-4
                   py-2.5
-                  rounded-xl
-                  bg-zinc-900/60
+                  bg-zinc-950/90
                   border
-                  border-zinc-800
+                  border-cyan-500/30
                   backdrop-blur-sm
                   text-zinc-400
-                  text-sm
-                  font-medium
+                  font-mono
+                  text-xs
+                  uppercase
+                  tracking-wider
                   transition-all
                   duration-300
-                  hover:bg-zinc-800/80
-                  hover:border-cyan-500/50
+                  hover:border-cyan-400
                   hover:text-cyan-300
                   hover:-translate-y-0.5
-                  hover:shadow-[0_4px_20px_rgba(34,211,238,0.15)]
+                  hover:shadow-[0_0_15px_rgba(34,211,238,0.2)]
+                  hud-clip-sm
                 "
               >
-                <Icon className="w-4 h-4 text-zinc-400 group-hover:text-cyan-300 transition-colors" />
+                <Icon className="w-4 h-4 text-cyan-400/70 group-hover:text-cyan-300 transition-colors" />
                 <span>{social.name}</span>
               </a>
             );

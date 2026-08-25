@@ -12,9 +12,9 @@ export default function HomePage() {
 
       <Stats />
 
-      <FeaturedProject />
-
       <About />
+
+      <FeaturedProject />
 
       <Education />
 

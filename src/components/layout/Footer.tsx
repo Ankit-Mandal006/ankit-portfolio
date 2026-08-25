@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { sendContactEmail } from "@/app/contact/actions"; // adjust path if needed
+import { sendContactEmail } from "@/app/contact/actions";
 
 export default function Footer() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -31,117 +31,166 @@ export default function Footer() {
   return (
     <footer
       id="contact"
-      className="
-        border-t
-        border-zinc-900
-        mt-32
-        scroll-mt-24
-      "
+      className="relative border-t border-zinc-900 mt-32 scroll-mt-24 bg-[#050505] text-white"
     >
-      <div
-        className="
-          max-w-7xl
-          mx-auto
-          px-8
-          py-16
-          flex
-          flex-col
-          items-center
-          text-center
-        "
-      >
-        {/* Contact Form Section */}
-        <div className="pb-16 mb-12 border-b border-zinc-900 w-full flex flex-col items-center">
-          <p className="text-cyan-300 text-sm font-semibold uppercase tracking-widest">
-            Get In Touch
-          </p>
+      <div className="max-w-7xl mx-auto px-6 sm:px-8 py-20">
+        {/* ========================================== */}
+        {/* GAMIFIED CONTACT SECTION (SOLID - NO BLUR) */}
+        {/* ========================================== */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 pb-16 border-b border-zinc-900">
+          
+          {/* LEFT COLUMN: Tactical Header & Status Info */}
+          <div className="lg:col-span-5 flex flex-col justify-between">
+            <div>
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-zinc-900 border border-cyan-500/40 text-cyan-400 font-mono text-xs uppercase tracking-[0.2em] mb-4 hud-clip-sm">
+                <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
+                // INITIATE_COMMS //
+              </div>
 
-          <h2 className="text-4xl md:text-5xl font-black mt-2 text-white">
-            Let’s Work Together
-          </h2>
+              <h2 className="text-4xl sm:text-5xl font-black tracking-tight text-white uppercase drop-shadow-[0_0_15px_rgba(34,211,238,0.2)]">
+                Let’s Work <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-teal-200">
+                  Together
+                </span>
+              </h2>
 
-          <p className="text-zinc-400 text-lg mt-3 max-w-2xl">
-            Have a project in mind? Fill out the form and both of us will receive a copy of your inquiry in our inbox.
-          </p>
-
-          {status?.success ? (
-            <div className="mt-8 p-6 rounded-2xl bg-cyan-400/10 border border-cyan-400/30 text-cyan-300 text-center max-w-2xl w-full">
-              🎉 Message sent successfully! I&apos;ll get back to you soon.
+              <p className="text-zinc-400 text-base mt-4 leading-relaxed max-w-md">
+                Have a project in mind, engine mechanics to solve, or collaboration inquiries? Send a direct transmission below.
+              </p>
             </div>
-          ) : (
-            <form onSubmit={handleSubmit} className="mt-8 max-w-3xl w-full space-y-6 text-left">
-              {status?.error && (
-                <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm">
-                  {status.error}
-                </div>
-              )}
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-semibold text-zinc-300 mb-2">
-                    Name
-                  </label>
-                  <input
-                    type="text"
-                    name="name"
-                    required
-                    placeholder="Your Name"
-                    className="w-full px-4 py-3.5 rounded-xl bg-zinc-900/90 border border-zinc-800 text-white placeholder-zinc-500 focus:outline-none focus:border-cyan-400 transition"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-zinc-300 mb-2">
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    name="email"
-                    required
-                    placeholder="you@example.com"
-                    className="w-full px-4 py-3.5 rounded-xl bg-zinc-900/90 border border-zinc-800 text-white placeholder-zinc-500 focus:outline-none focus:border-cyan-400 transition"
-                  />
+            {/* Tactical Info Cards (Solid Dark) */}
+            <div className="mt-8 lg:mt-0 space-y-4">
+              <div className="p-4 bg-zinc-950 border border-zinc-800 hud-clip-sm space-y-1 font-mono text-xs">
+                <div className="text-zinc-500">// OPERATIONAL_STATUS</div>
+                <div className="text-cyan-300 font-bold flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-ping" />
+                  AVAILABLE FOR PROJECTS & ROLES
                 </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-semibold text-zinc-300 mb-2">
-                  Message
-                </label>
-                <textarea
-                  name="message"
-                  required
-                  rows={5}
-                  placeholder="Tell me about your project..."
-                  className="w-full px-4 py-3.5 rounded-xl bg-zinc-900/90 border border-zinc-800 text-white placeholder-zinc-500 focus:outline-none focus:border-cyan-400 transition resize-none"
-                />
-              </div>
-
-              <div className="flex justify-center pt-2">
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="px-8 py-3.5 bg-cyan-400 text-black font-bold rounded-xl hover:bg-cyan-300 disabled:opacity-50 transition cursor-pointer"
+              <div className="p-4 bg-zinc-950 border border-zinc-800 hud-clip-sm space-y-1 font-mono text-xs">
+                <div className="text-zinc-500">// DIRECT_EMAIL</div>
+                <a
+                  href="mailto:mandal.ankit190506@gmail.com"
+                  className="text-zinc-200 hover:text-cyan-400 transition-colors block font-sans text-sm font-semibold"
                 >
-                  {isSubmitting ? "Sending..." : "Send Message"}
-                </button>
+                  mandal.ankit190506@gmail.com
+                </a>
               </div>
-            </form>
-          )}
+            </div>
+          </div>
+
+          {/* RIGHT COLUMN: Contact Form (Solid BG, Zero Blur, Sharp HUD Clip) */}
+          <div className="lg:col-span-7">
+            <div className="relative bg-zinc-950 border border-cyan-500/40 p-6 sm:p-8 hud-clip shadow-[0_0_30px_rgba(0,0,0,0.8)]">
+              {/* Tactical Corner Indicators */}
+              <span className="absolute top-1 left-2 text-[10px] font-mono text-cyan-500/50 pointer-events-none">┌ SEC_01</span>
+              <span className="absolute top-1 right-6 text-[10px] font-mono text-cyan-500/50 pointer-events-none">SYS_READY ┐</span>
+              
+              {/* Top Accent Neon Line */}
+              <div className="absolute top-0 left-0 right-4 h-[2px] bg-gradient-to-r from-cyan-400 via-teal-300 to-transparent" />
+
+              {status?.success ? (
+                <div className="p-6 bg-zinc-900 border border-cyan-400/60 text-cyan-300 hud-clip-sm font-mono text-xs space-y-3">
+                  <div className="text-cyan-400 font-bold tracking-widest text-sm flex items-center gap-2">
+                    <span>[SYS_OK]</span>
+                    <span>:: TRANSMISSION_DISPATCHED</span>
+                  </div>
+                  <p className="text-zinc-300 font-sans text-sm">
+                    Message received! A confirmation copy has been sent to your inbox.
+                  </p>
+                </div>
+              ) : (
+                <form onSubmit={handleSubmit} className="space-y-5">
+                  {status?.error && (
+                    <div className="p-4 bg-red-950 border border-red-500/60 text-red-400 font-mono text-xs hud-clip-sm">
+                      <span className="font-bold mr-2">[SYS_ERR]</span>
+                      <span>{status.error}</span>
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div>
+                      <label className="block text-xs font-mono uppercase tracking-wider text-cyan-400 mb-2">
+                        &gt; SENDER_NAME
+                      </label>
+                      <input
+                        type="text"
+                        name="name"
+                        required
+                        placeholder="Your Name"
+                        className="w-full px-4 py-3 bg-zinc-900 border border-zinc-800 text-white placeholder-zinc-600 font-mono text-sm focus:outline-none focus:border-cyan-400 focus:shadow-[0_0_12px_rgba(34,211,238,0.25)] transition-all duration-200 hud-clip-sm"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-mono uppercase tracking-wider text-cyan-400 mb-2">
+                        &gt; CONTACT_EMAIL
+                      </label>
+                      <input
+                        type="email"
+                        name="email"
+                        required
+                        placeholder="you@example.com"
+                        className="w-full px-4 py-3 bg-zinc-900 border border-zinc-800 text-white placeholder-zinc-600 font-mono text-sm focus:outline-none focus:border-cyan-400 focus:shadow-[0_0_12px_rgba(34,211,238,0.25)] transition-all duration-200 hud-clip-sm"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-mono uppercase tracking-wider text-cyan-400 mb-2">
+                      &gt; TRANSMISSION_PAYLOAD
+                    </label>
+                    <textarea
+                      name="message"
+                      required
+                      rows={5}
+                      placeholder="Tell me about your project, mechanics, or inquiry..."
+                      className="w-full px-4 py-3 bg-zinc-900 border border-zinc-800 text-white placeholder-zinc-600 font-mono text-sm focus:outline-none focus:border-cyan-400 focus:shadow-[0_0_12px_rgba(34,211,238,0.25)] transition-all duration-200 resize-none hud-clip-sm"
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="group flex items-center justify-center gap-2 w-full sm:w-auto px-8 py-3.5 bg-cyan-400 text-black font-mono text-xs font-bold uppercase tracking-wider shadow-[0_0_20px_rgba(34,211,238,0.3)] transition-all duration-200 hover:bg-cyan-300 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed hud-clip-sm cursor-pointer"
+                  >
+                    <span>
+                      {isSubmitting ? "TRANSMITTING..." : "> DISPATCH_MESSAGE"}
+                    </span>
+                    {!isSubmitting && (
+                      <span className="transition-transform duration-200 group-hover:translate-x-1">
+                        →
+                      </span>
+                    )}
+                  </button>
+                </form>
+              )}
+            </div>
+          </div>
         </div>
 
-        {/* Branding & Info */}
-        <h3 className="font-black text-xl text-white">
-          ANKIT MANDAL
-        </h3>
+        {/* ========================================== */}
+        {/* FOOTER BOTTOM SECTION (BACKDROP BLUR & GLOW ADDED HERE) */}
+        {/* ========================================== */}
+        <div className="relative mt-12 pt-6 pb-6 px-8 backdrop-blur-md bg-zinc-950/40 border border-zinc-900/80 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4">
+          {/* Ambient Glow Background Accent */}
+          <div className="absolute inset-0 bg-cyan-500/5 blur-2xl rounded-2xl pointer-events-none" />
 
-        <p className="text-zinc-500 mt-2">
-          Unity Developer • Game Designer
-        </p>
+          <div className="relative z-10 text-center sm:text-left">
+            <h3 className="font-black text-xl text-white tracking-wider">
+              ANKIT MANDAL
+            </h3>
+            <p className="text-cyan-400/80 font-mono text-xs uppercase tracking-widest mt-1">
+              // UNITY_DEVELOPER :: GAME_DESIGNER //
+            </p>
+          </div>
 
-        <p className="text-zinc-700 mt-8">
-          © {new Date().getFullYear()} Ankit Mandal
-        </p>
+          <p className="relative z-10 text-zinc-500 font-mono text-xs">
+            © {new Date().getFullYear()} ANKIT MANDAL. ALL RIGHTS RESERVED.
+          </p>
+        </div>
       </div>
     </footer>
   );

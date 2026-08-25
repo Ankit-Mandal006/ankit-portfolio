@@ -22,64 +22,75 @@ export default function ProjectCard({
     <article
       className="
         group
-        overflow-hidden
-        rounded-3xl
+        relative
+        bg-zinc-950
         border
         border-zinc-800
-        bg-zinc-950
-        hover:border-cyan-400/40
+        hover:border-cyan-500/50
         transition-all
         duration-300
+        hud-clip
+        flex
+        flex-col
+        h-full
+        overflow-hidden
       "
     >
-      {/* IMAGE + HOVER OVERLAY */}
+      {/* Tactical Top Accent Line */}
+      <div className="absolute top-0 left-0 right-4 h-[2px] bg-gradient-to-r from-cyan-400 via-teal-300 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20" />
 
-      <div className="relative h-64 overflow-hidden">
-
+      {/* IMAGE CONTAINER + HOVER HUD OVERLAY */}
+      <div className="relative aspect-[16/9] w-full overflow-hidden border-b border-zinc-800/80 bg-zinc-900">
         <Link
           href={`/projects/${slug}`}
-          className="absolute inset-0 z-0"
+          className="absolute inset-0 z-0 block w-full h-full"
           aria-label={`View ${title} project`}
         >
           <Image
             src={cover || "/defaults/project-cover.png"}
             alt={title}
-            width={1200}
-            height={675}
+            fill
+            sizes="(max-width: 1024px) 100vw, 50vw"
+            priority={false}
             className="
-              w-full
-              h-full
               object-cover
+              object-center
               transition-all
               duration-500
               group-hover:scale-105
-              group-hover:blur-[2px]
-              group-hover:brightness-50
+              group-hover:brightness-40
+              group-hover:blur-[1px]
             "
           />
         </Link>
 
-        {/* HOVER OPTIONS */}
+        {/* Tactical Corner Badge */}
+        <div className="absolute top-3 left-3 z-10 font-mono text-[10px] uppercase tracking-widest text-cyan-400 bg-zinc-950/90 border border-cyan-500/40 px-2.5 py-1 backdrop-blur-md hud-clip-sm pointer-events-none">
+          // PROJ_ID: {slug.toUpperCase()}
+        </div>
 
+        {/* HOVER OVERLAY ACTIONS */}
         <div
           className="
             absolute
             inset-0
             z-10
             flex
+            flex-wrap
             items-center
             justify-center
-            gap-4
+            gap-3
+            p-4
             opacity-0
             group-hover:opacity-100
             transition-opacity
             duration-300
             pointer-events-none
+            bg-zinc-950/60
+            backdrop-blur-xs
           "
         >
-
-          {/* PLAY */}
-
+          {/* PLAY LINK */}
           {itch && (
             <a
               href={itch}
@@ -87,24 +98,28 @@ export default function ProjectCard({
               rel="noopener noreferrer"
               className="
                 pointer-events-auto
-                px-6
-                py-3
-                rounded-xl
+                px-4
+                py-2
                 bg-cyan-400
                 text-black
+                font-mono
                 font-bold
-                shadow-xl
+                text-xs
+                uppercase
+                tracking-wider
+                shadow-[0_0_15px_rgba(34,211,238,0.3)]
                 hover:bg-cyan-300
                 hover:scale-105
-                transition
+                transition-all
+                duration-200
+                hud-clip-sm
               "
             >
-              ▶ Play
+              ▶ PLAY_GAME
             </a>
           )}
 
-          {/* SOURCE CODE */}
-
+          {/* SOURCE CODE LINK */}
           {github && (
             <a
               href={github}
@@ -112,56 +127,76 @@ export default function ProjectCard({
               rel="noopener noreferrer"
               className="
                 pointer-events-auto
-                px-6
-                py-3
-                rounded-xl
+                px-4
+                py-2
                 bg-zinc-950/90
                 border
-                border-zinc-600
-                text-white
-                font-semibold
+                border-zinc-700
+                text-zinc-200
+                font-mono
+                font-bold
+                text-xs
+                uppercase
+                tracking-wider
                 backdrop-blur-md
                 hover:border-cyan-400
                 hover:text-cyan-300
                 hover:scale-105
-                transition
+                transition-all
+                duration-200
+                hud-clip-sm
               "
             >
-              &lt;/&gt; Source Code
+              &lt;/&gt; SOURCE_CODE
             </a>
           )}
-
         </div>
-
       </div>
 
       {/* PROJECT INFORMATION */}
-
-      <Link href={`/projects/${slug}`}>
-        <div className="p-8">
-
+      <div className="p-6 flex flex-col justify-between flex-grow font-sans">
+        <div>
           <h3
             className="
-              text-3xl
-              font-bold
+              text-2xl
+              font-black
+              tracking-tight
+              text-white
               group-hover:text-cyan-300
-              transition
+              transition-colors
+              duration-200
             "
           >
             {title}
           </h3>
 
-          <p className="mt-4 text-zinc-400">
+          <p className="mt-3 text-sm text-zinc-400 line-clamp-3 leading-relaxed">
             {description}
           </p>
-
-          <p className="mt-6 text-cyan-300">
-            View Case Study →
-          </p>
-
         </div>
-      </Link>
 
+        <Link
+          href={`/projects/${slug}`}
+          className="
+            mt-6
+            inline-flex
+            items-center
+            gap-2
+            font-mono
+            text-xs
+            uppercase
+            tracking-widest
+            text-cyan-400
+            group-hover:text-cyan-300
+            transition-colors
+          "
+        >
+          <span>VIEW CASE STUDY</span>
+          <span className="text-cyan-400 transition-transform group-hover:translate-x-1">
+            →
+          </span>
+        </Link>
+      </div>
     </article>
   );
 }
