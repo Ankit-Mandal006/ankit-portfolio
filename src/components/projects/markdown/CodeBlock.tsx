@@ -1,26 +1,21 @@
 "use client";
 
 import { useState } from "react";
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import {
+  Prism as SyntaxHighlighter,
+} from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 
 type Props = {
-  inline?: boolean;
-  className?: string;
-  children?: React.ReactNode;
+  code: string;
+  language: string;
 };
 
 export default function CodeBlock({
-  inline,
-  className,
-  children,
+  code,
+  language,
 }: Props) {
   const [copied, setCopied] = useState(false);
-
-  const code = String(children ?? "").replace(/\n$/, "");
-
-  const language =
-    className?.replace("language-", "") || "text";
 
   async function copyCode() {
     try {
@@ -31,48 +26,23 @@ export default function CodeBlock({
       setTimeout(() => {
         setCopied(false);
       }, 2000);
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
+      console.error("Failed to copy code:", error);
     }
-  }
-
-  /* Inline code */
-
-  if (inline) {
-    return (
-      <code
-        className="
-          rounded-md
-          border
-          border-zinc-800
-          bg-zinc-900
-          px-2
-          py-1
-          font-mono
-          text-[0.9rem]
-          text-cyan-300
-        "
-      >
-        {children}
-      </code>
-    );
   }
 
   return (
     <div
       className="
-        relative
-        my-10
+        my-8
         overflow-hidden
         rounded-2xl
         border
         border-zinc-800
-        bg-zinc-950
-        shadow-[0_0_30px_rgba(0,0,0,0.35)]
+        bg-[#0d1117]
       "
     >
-      {/* Header */}
-
+      {/* IDE HEADER */}
       <div
         className="
           flex
@@ -80,60 +50,72 @@ export default function CodeBlock({
           justify-between
           border-b
           border-zinc-800
-          bg-zinc-900/80
+          bg-[#161b22]
           px-4
           py-3
         "
       >
-        <span
-          className="
-            text-xs
-            uppercase
-            tracking-widest
-            text-cyan-400
-          "
-        >
-          {language}
-        </span>
+        {/* Left side */}
+        <div className="flex items-center gap-2">
+          <span className="h-3 w-3 rounded-full bg-red-500/80" />
+          <span className="h-3 w-3 rounded-full bg-yellow-500/80" />
+          <span className="h-3 w-3 rounded-full bg-green-500/80" />
 
+          <span
+            className="
+              ml-3
+              font-mono
+              text-xs
+              uppercase
+              tracking-wider
+              text-zinc-500
+            "
+          >
+            {language}
+          </span>
+        </div>
+
+        {/* Copy button */}
         <button
+          type="button"
           onClick={copyCode}
           className="
-            rounded-lg
+            rounded-md
             border
             border-zinc-700
+            bg-zinc-900
             px-3
             py-1.5
+            font-mono
             text-xs
             text-zinc-300
+            transition
             hover:border-cyan-400
             hover:text-cyan-300
-            transition
           "
         >
           {copied ? "Copied!" : "Copy"}
         </button>
       </div>
 
-      {/* Code */}
-
-      <SyntaxHighlighter
-        language={language}
-        style={oneDark}
-        showLineNumbers
-        wrapLongLines
-        customStyle={{
-          margin: 0,
-          padding: "24px",
-          background: "#09090b",
-          borderRadius: "0",
-          fontSize: "14px",
-          fontFamily:
-            "JetBrains Mono, Fira Code, Consolas, monospace",
-        }}
-      >
-        {code}
-      </SyntaxHighlighter>
+      {/* CODE */}
+      <div className="overflow-x-auto">
+        <SyntaxHighlighter
+          language={language}
+          style={oneDark}
+          showLineNumbers
+          wrapLongLines={false}
+          customStyle={{
+            margin: 0,
+            padding: "24px",
+            background: "#0d1117",
+            fontSize: "14px",
+            lineHeight: "1.7",
+          }}
+        >
+          {code}
+        </SyntaxHighlighter>
+      </div>
     </div>
   );
 }

@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import type { Components } from "react-markdown";
 
 import ImageRenderer from "./ImageRenderer";
@@ -13,68 +12,69 @@ const MarkdownComponents: Components = {
   /* -------------------------------- */
 
   h1: ({ children }) => (
-    <h1 className="mt-14 mb-8 text-5xl font-black text-white not-italic no-underline [&_a]:text-white [&_a]:no-underline [&_a]:not-italic">
+    <h1 className="mt-14 mb-8 text-5xl font-black text-white">
       {children}
     </h1>
   ),
 
   h2: ({ children }) => (
-    <h2 className="mt-14 mb-6 text-4xl font-bold border-b border-zinc-800 pb-3 text-white not-italic no-underline [&_a]:text-white [&_a]:no-underline [&_a]:not-italic">
+    <h2 className="mt-14 mb-6 border-b border-zinc-800 pb-3 text-4xl font-bold">
       {children}
     </h2>
   ),
 
   h3: ({ children }) => (
-    <h3 className="mt-10 mb-4 text-2xl font-bold text-cyan-300 not-italic no-underline [&_a]:text-cyan-300 [&_a]:no-underline [&_a]:not-italic">
+    <h3 className="mt-10 mb-4 text-2xl font-bold text-cyan-300">
       {children}
     </h3>
   ),
 
   h4: ({ children }) => (
-    <h4 className="mt-8 mb-3 text-xl font-semibold text-white not-italic no-underline [&_a]:text-white [&_a]:no-underline [&_a]:not-italic">
+    <h4 className="mt-8 mb-3 text-xl font-semibold text-white">
       {children}
     </h4>
   ),
 
   /* -------------------------------- */
-  /* TEXT & PARAGRAPHS                */
+  /* PARAGRAPHS                       */
   /* -------------------------------- */
 
-  p({ children, node }) {
-    // 1. Check if paragraph contains an image element
-    const hasImageChild = node?.children?.some((child) => {
-      if ("tagName" in child) {
-        return child.tagName === "img";
-      }
-      return false;
-    });
+  p({ children }) {
+    /*
+     * IMPORTANT:
+     * Do not put block-level components such as
+     * CodeBlock, iframe, div, etc. inside <p>.
+     */
 
-    // 2. Check for standalone YouTube URLs
-    const rawText = typeof children === "string" ? children.trim() : "";
-    const isYouTubeUrl =
-      rawText.includes("youtube.com/watch") ||
-      rawText.includes("youtu.be/");
+    const text = Array.isArray(children)
+      ? children
+          .filter((child) => typeof child === "string")
+          .join("")
+      : typeof children === "string"
+        ? children
+        : "";
 
-    if (isYouTubeUrl) {
-      return (
-        <div className="my-8">
-          <YouTube url={rawText} />
-        </div>
-      );
+    /*
+     * Detect a raw YouTube URL.
+     */
+    if (
+      text.trim().startsWith("https://www.youtube.com/") ||
+      text.trim().startsWith("https://youtube.com/") ||
+      text.trim().startsWith("https://youtu.be/")
+    ) {
+      return <YouTube url={text.trim()} />;
     }
 
-    // 3. Render as <div> if wrapping an image to avoid HTML `<p> > <div>` hydration errors
-    if (hasImageChild) {
-      return <div className="my-6">{children}</div>;
-    }
-
-    // 4. Default Paragraph
     return (
-      <p className="text-zinc-300 leading-9 text-lg my-6">
+      <p className="my-6 text-lg leading-9 text-zinc-300">
         {children}
       </p>
     );
   },
+
+  /* -------------------------------- */
+  /* TEXT                             */
+  /* -------------------------------- */
 
   strong: ({ children }) => (
     <strong className="font-bold text-white">
@@ -88,8 +88,10 @@ const MarkdownComponents: Components = {
     </em>
   ),
 
-  hr: () => (
-    <hr className="my-12 border-zinc-800" />
+  del: ({ children }) => (
+    <del className="text-zinc-500">
+      {children}
+    </del>
   ),
 
   /* -------------------------------- */
@@ -97,33 +99,21 @@ const MarkdownComponents: Components = {
   /* -------------------------------- */
 
   a({ href = "", children }) {
-    // Check if the link target is an anchor link to a heading (e.g., #heading-title)
-    const isHeadingAnchor = href.startsWith("#");
-
-    if (isHeadingAnchor) {
-      return (
-        <a href={href} className="text-inherit no-underline not-italic">
-          {children}
-        </a>
-      );
-    }
-
     return (
       <a
         href={href}
         target="_blank"
-        rel="noreferrer"
+        rel="noopener noreferrer"
         className="
+          italic
           font-medium
           text-cyan-400
           underline
           underline-offset-4
-          decoration-cyan-400
+          decoration-cyan-400/40
+          transition-colors
           hover:text-cyan-300
           hover:decoration-cyan-300
-          transition-all
-          duration-300
-          not-italic
         "
       >
         {children}
@@ -135,13 +125,15 @@ const MarkdownComponents: Components = {
   /* IMAGES                           */
   /* -------------------------------- */
 
-  img(props) {
-    const src = typeof props.src === "string" ? props.src : "";
+  img({ src, alt = "" }) {
+    if (!src) {
+      return null;
+    }
 
     return (
       <ImageRenderer
-        src={src}
-        alt={props.alt ?? ""}
+        src={String(src)}
+        alt={alt}
       />
     );
   },
@@ -151,19 +143,21 @@ const MarkdownComponents: Components = {
   /* -------------------------------- */
 
   ul: ({ children }) => (
-    <ul className="list-disc ml-7 space-y-3 text-zinc-300 my-6">
+    <ul className="my-6 ml-7 list-disc space-y-3 text-zinc-300">
       {children}
     </ul>
   ),
 
   ol: ({ children }) => (
-    <ol className="list-decimal ml-7 space-y-3 text-zinc-300 my-6">
+    <ol className="my-6 ml-7 list-decimal space-y-3 text-zinc-300">
       {children}
     </ol>
   ),
 
   li: ({ children }) => (
-    <li>{children}</li>
+    <li className="pl-1">
+      {children}
+    </li>
   ),
 
   /* -------------------------------- */
@@ -171,37 +165,39 @@ const MarkdownComponents: Components = {
   /* -------------------------------- */
 
   table: ({ children }) => (
-    <div className="overflow-x-auto my-10 rounded-2xl border border-zinc-800 bg-zinc-900/40">
-      <table className="w-full border-collapse text-left">
+    <div className="my-10 overflow-x-auto rounded-2xl border border-zinc-800">
+      <table className="w-full border-collapse">
         {children}
       </table>
     </div>
   ),
 
   thead: ({ children }) => (
-    <thead className="bg-zinc-900 text-cyan-300 border-b border-zinc-800">
+    <thead className="bg-zinc-900">
       {children}
     </thead>
   ),
 
   tbody: ({ children }) => (
-    <tbody className="divide-y divide-zinc-800/60">{children}</tbody>
+    <tbody>
+      {children}
+    </tbody>
   ),
 
   tr: ({ children }) => (
-    <tr className="hover:bg-zinc-900/30 transition-colors">
+    <tr className="border-b border-zinc-800 last:border-b-0">
       {children}
     </tr>
   ),
 
   th: ({ children }) => (
-    <th className="p-4 text-sm font-bold tracking-wider uppercase">
+    <th className="p-4 text-left font-bold text-white">
       {children}
     </th>
   ),
 
   td: ({ children }) => (
-    <td className="p-4 text-zinc-300 text-sm">
+    <td className="p-4 text-zinc-300">
       {children}
     </td>
   ),
@@ -218,9 +214,10 @@ const MarkdownComponents: Components = {
         border-l-4
         border-cyan-400
         bg-zinc-900/60
-        p-6
+        px-6
+        py-5
         italic
-        text-zinc-200
+        text-zinc-300
       "
     >
       {children}
@@ -228,12 +225,86 @@ const MarkdownComponents: Components = {
   ),
 
   /* -------------------------------- */
-  /* CODE                             */
+  /* INLINE CODE                      */
   /* -------------------------------- */
 
-  code(props) {
-    return <CodeBlock {...props} />;
+  code({ children, className }) {
+    /*
+     * Fenced code is handled by `pre`.
+     *
+     * Here we ONLY render inline code.
+     */
+
+    if (className?.includes("language-")) {
+      return (
+        <code className="font-mono">
+          {children}
+        </code>
+      );
+    }
+
+    return (
+      <code
+        className="
+          rounded-md
+          border
+          border-zinc-800
+          bg-zinc-900
+          px-2
+          py-1
+          font-mono
+          text-sm
+          text-cyan-300
+        "
+      >
+        {children}
+      </code>
+    );
   },
+
+  /* -------------------------------- */
+  /* FENCED CODE BLOCKS               */
+  /* -------------------------------- */
+
+  pre({ children }) {
+  const child = Array.isArray(children)
+    ? children[0]
+    : children;
+
+  if (!child) {
+    return null;
+  }
+
+  const childProps = (
+    child as React.ReactElement<{
+      children?: React.ReactNode;
+      className?: string;
+    }>
+  ).props;
+
+  const code = String(
+    childProps.children ?? ""
+  ).replace(/\n$/, "");
+
+  const language =
+    childProps.className
+      ?.replace(/^language-/, "") || "text";
+
+  return (
+    <CodeBlock
+      code={code}
+      language={language}
+    />
+  );
+},
+
+  /* -------------------------------- */
+  /* HORIZONTAL RULE                  */
+  /* -------------------------------- */
+
+  hr: () => (
+    <hr className="my-12 border-zinc-800" />
+  ),
 };
 
 export default MarkdownComponents;

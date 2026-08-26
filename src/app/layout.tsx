@@ -2,12 +2,10 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import BackgroundGlow from "@/components/home/BackgroundGlow";
 import MeshBackground from "@/components/home/MeshBackground";
+import ConditionalLayout from "@/components/layout/ConditionalLayout";
+import ConditionalFooter from "@/components/layout/ConditionalFooter";
 
 import "./globals.css";
-
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
-import ScrollProgress from "@/components/layout/ScrollProgress";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -21,8 +19,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Ankit Mandal",
-  description:
-    "Unity Developer • Game Designer • Creator of Spy-Fiction",
+  description: "Unity Developer • Game Designer • Creator of Spy-Fiction",
 };
 
 export default function RootLayout({
@@ -35,28 +32,20 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable}`}
     >
-      <body
-  className="
-    min-h-screen
-    bg-black
-    text-white
-    overflow-x-hidden
-  "
->
-  <MeshBackground />
+      <body className="min-h-screen bg-black text-white overflow-x-hidden">
+        <MeshBackground />
+        <BackgroundGlow />
 
-  <BackgroundGlow />
+        {/* ScrollProgress + Navbar — hidden on /admin and /login */}
+        <ConditionalLayout />
 
-  <ScrollProgress />
+        <main className="flex-1">
+          {children}
+        </main>
 
-  <Navbar />
-
-  <main className="flex-1">
-    {children}
-  </main>
-
-  <Footer />
-</body>
+        {/* Footer with Contact section — hidden on /admin and /login */}
+        <ConditionalFooter />
+      </body>
     </html>
   );
 }

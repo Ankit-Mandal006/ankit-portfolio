@@ -1,9 +1,7 @@
 import { getProject } from "@/lib/projects";
 import { updateProject } from "../../actions";
 import Link from "next/link";
-import ImageUploader from "@/components/admin/ImageUploader";
-import GalleryUploader from "@/components/admin/GalleryUploader";
-import MarkdownEditor from "@/components/admin/MarkdownEditor";
+import EditProjectForm from "@/components/admin/EditProjectForm";
 
 export default async function EditProjectPage({
   params,
@@ -15,175 +13,50 @@ export default async function EditProjectPage({
 
   if (!project) {
     return (
-      <main className="max-w-5xl mx-auto px-8 pt-40">
-        <h1 className="text-5xl font-black">Project Not Found</h1>
-        <Link href="/admin" className="text-cyan-400 hover:underline mt-4 inline-block">
-          Return to Dashboard
-        </Link>
+      <main className="max-w-5xl mx-auto px-6 sm:px-8 pt-12 pb-32">
+        <div className="relative bg-zinc-950 border border-red-500/30 p-12 text-center hud-clip">
+          <div className="absolute top-0 left-0 right-4 h-[2px] bg-gradient-to-r from-red-500 to-transparent" />
+          <p className="text-red-400 font-mono text-xs uppercase tracking-[0.3em] mb-3">
+            // ERROR_404: PROJECT_NOT_FOUND //
+          </p>
+          <h1 className="text-4xl font-black text-white">Not Found</h1>
+          <Link
+            href="/admin"
+            className="mt-8 inline-flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-cyan-400 border border-cyan-500/40 bg-cyan-950/60 px-5 py-2.5 hud-clip-sm hover:bg-cyan-900/50 transition-colors"
+          >
+            ← Return to Dashboard
+          </Link>
+        </div>
       </main>
     );
   }
 
   return (
-    <main className="max-w-5xl mx-auto px-8 pt-40 pb-24">
-      <div className="flex justify-between items-end mb-12">
-        <div>
-          <p className="text-cyan-300 uppercase tracking-widest">Admin</p>
-          <h1 className="text-5xl font-black mt-4">Edit Project</h1>
-        </div>
-        <Link 
-          href="/admin" 
-          className="text-sm text-zinc-400 hover:text-white transition-colors"
+    <main className="max-w-5xl mx-auto px-6 sm:px-8 pt-12 pb-32">
+      {/* Header */}
+      <div className="relative border-l-2 border-cyan-400 pl-5 mb-10">
+        <Link
+          href="/admin"
+          className="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-zinc-500 hover:text-cyan-400 transition-colors mb-3"
         >
-          Cancel
+          ← [ BACK_TO_DASHBOARD ]
         </Link>
+        <p className="text-cyan-400 font-mono text-xs uppercase tracking-[0.3em] mb-1">
+          // ADMIN :: EDIT //
+        </p>
+        <h1 className="text-4xl sm:text-5xl font-black tracking-tight text-white">
+          {project.title}
+        </h1>
+        <p className="text-zinc-500 font-mono text-sm mt-1">
+          Slug: <span className="text-cyan-500">{project.slug}</span>
+        </p>
       </div>
 
-      <form action={updateProject} className="space-y-8">
-        <input type="hidden" name="currentSlug" value={project.slug} />
-
-        <div className="grid md:grid-cols-2 gap-6">
-          <div>
-            <label className="block mb-2 font-semibold text-zinc-400">Title</label>
-            <input
-              name="title"
-              required
-              defaultValue={project.title}
-              className="w-full p-4 rounded-xl bg-zinc-900 border border-zinc-800 focus:outline-none focus:border-cyan-400"
-            />
-          </div>
-
-          <div>
-            <label className="block mb-2 font-semibold text-zinc-400">Slug</label>
-            <input
-              name="slug"
-              required
-              defaultValue={project.slug}
-              className="w-full p-4 rounded-xl bg-zinc-900 border border-zinc-800 focus:outline-none focus:border-cyan-400"
-            />
-          </div>
-        </div>
-
-        <div>
-          <label className="block mb-2 font-semibold text-zinc-400">Tagline</label>
-          <input
-            name="tagline"
-            defaultValue={project.tagline}
-            className="w-full p-4 rounded-xl bg-zinc-900 border border-zinc-800 focus:outline-none focus:border-cyan-400"
-          />
-        </div>
-
-        <div>
-          <label className="block mb-2 font-semibold text-zinc-400">Description</label>
-          <MarkdownEditor
-            name="description"
-            defaultValue={project.description}
-          />
-        </div>
-
-        <div className="grid md:grid-cols-3 gap-6">
-          <div>
-            <label className="block mb-2 font-semibold text-zinc-400">Engine</label>
-            <input
-              name="engine"
-              defaultValue={project.engine}
-              className="w-full p-4 rounded-xl bg-zinc-900 border border-zinc-800 focus:outline-none focus:border-cyan-400"
-            />
-          </div>
-
-          <div>
-            <label className="block mb-2 font-semibold text-zinc-400">Role</label>
-            <input
-              name="role"
-              defaultValue={project.role}
-              className="w-full p-4 rounded-xl bg-zinc-900 border border-zinc-800 focus:outline-none focus:border-cyan-400"
-            />
-          </div>
-
-          <div>
-            <label className="block mb-2 font-semibold text-zinc-400">Duration</label>
-            <input
-              name="duration"
-              defaultValue={project.duration}
-              className="w-full p-4 rounded-xl bg-zinc-900 border border-zinc-800 focus:outline-none focus:border-cyan-400"
-            />
-          </div>
-        </div>
-
-        <div className="grid md:grid-cols-2 gap-6">
-          <div>
-            <label className="block mb-2 font-semibold text-zinc-400">
-              Cover Image
-            </label>
-            <ImageUploader
-              name="cover"
-              defaultValue={project.cover || ""}
-            />
-          </div>
-
-          <div>
-            <label className="block mb-2 font-semibold text-zinc-400">
-              Screenshots
-            </label>
-            <GalleryUploader
-              name="screenshots"
-              defaultValue={project.screenshots || []}
-            />
-          </div>
-        </div>
-
-        <div>
-          <label className="block mb-2 font-semibold text-zinc-400">
-            Trailer URL
-          </label>
-          <input
-            name="trailer"
-            defaultValue={project.trailer}
-            className="w-full p-4 rounded-xl bg-zinc-900 border border-zinc-800 focus:outline-none focus:border-cyan-400"
-          />
-        </div>
-
-        <div className="grid md:grid-cols-2 gap-6">
-          <div>
-            <label className="block mb-2 font-semibold text-zinc-400">Itch.io Link (Play Demo)</label>
-            <input
-              name="itch"
-              type="url"
-              defaultValue={project.itch}
-              className="w-full p-4 rounded-xl bg-zinc-900 border border-zinc-800 focus:outline-none focus:border-cyan-400"
-            />
-          </div>
-
-          <div>
-            <label className="block mb-2 font-semibold text-zinc-400">GitHub Link (Source Code)</label>
-            <input
-              name="github"
-              type="url"
-              defaultValue={project.github}
-              className="w-full p-4 rounded-xl bg-zinc-900 border border-zinc-800 focus:outline-none focus:border-cyan-400"
-            />
-          </div>
-        </div>
-
-        <div>
-          <label className="block mb-2 font-semibold text-zinc-400">Featured Status</label>
-          <select 
-            name="featured" 
-            defaultValue={project.featured ? "true" : "false"}
-            className="w-full p-4 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 focus:outline-none focus:border-cyan-400"
-          >
-            <option value="false">Standard Project</option>
-            <option value="true">Featured Showcase</option>
-          </select>
-        </div>
-
-        <button
-          type="submit"
-          className="px-8 py-4 rounded-xl bg-cyan-400 text-black font-semibold hover:bg-cyan-300 transition-colors"
-        >
-          Save Changes
-        </button>
-      </form>
+      {/* Form card */}
+      <div className="relative bg-zinc-950 border border-zinc-800 p-6 sm:p-10 hud-clip">
+        <div className="absolute top-0 left-0 right-4 h-[2px] bg-gradient-to-r from-cyan-400 via-teal-300 to-transparent" />
+        <EditProjectForm project={project} updateAction={updateProject} />
+      </div>
     </main>
   );
 }

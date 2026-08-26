@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 
 /* ==========================================
    GLOBAL CORE & GAMIFIED THEME
@@ -229,4 +230,18 @@ body::after {
 .hud-glow-hover:hover {
   box-shadow: 0 0 25px rgba(34, 211, 238, 0.25);
   border-color: rgba(34, 211, 238, 0.6);
+}
+
+/* ==========================================
+   DEVLOG REPORTS STYLING
+   ========================================== */
+.report-container {
+  width: 100%;
+  max-width: 100%;
+}
+
+.report-container pre,
+.report-container table {
+  max-width: 100%;
+  overflow-x: auto;
 }
