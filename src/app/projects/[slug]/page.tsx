@@ -51,6 +51,7 @@ function getYouTubeEmbedUrl(url: string): string | null {
 
   const regExp =
     /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|shorts\/|watch\?v=|&v=)([^#&?]*).*/;
+
   const match = url.match(regExp);
 
   if (match && match[2].length === 11) {
@@ -144,8 +145,8 @@ export default async function ProjectPage({
                 className="object-cover object-center transition-all duration-700 group-hover:scale-105 group-hover:brightness-50 group-hover:blur-[1px]"
               />
 
-              {/* Overlay: Visible on mobile/touch, triggers on hover for desktop */}
-              <div className="absolute inset-0 z-10 bg-zinc-950/40 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-between p-6 sm:p-8 backdrop-blur-sm">
+{/* Overlay: Visible on mobile/touch, triggers on hover for desktop */}
+<div className="absolute inset-0 z-10 bg-zinc-950/40 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-between p-6 sm:p-8 backdrop-blur-sm">
                 <div className="flex-1 flex items-center justify-center gap-4">
                   {project.itch ? (
                     <a
@@ -291,9 +292,10 @@ export default async function ProjectPage({
                   </div>
 
                   <div className="overflow-hidden border border-zinc-800 hud-clip-sm aspect-video w-full bg-black">
-                    {embedUrl ? (
+{embedUrl ? (
                       <iframe
                         src={embedUrl}
+
                         title={`${project.title} Trailer`}
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowFullScreen
