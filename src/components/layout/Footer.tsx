@@ -111,58 +111,66 @@ export default function Footer() {
                   )}
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                    <div>
-                      <label className="block text-xs font-mono uppercase tracking-wider text-cyan-400 mb-2">
-                        &gt; SENDER_NAME
+                    <div className="relative group/field">
+                      <label className="block text-xs font-mono uppercase tracking-wider text-cyan-400 mb-2 flex justify-between">
+                        <span>&gt; SENDER_NAME</span>
+                        <span className="text-[9px] text-zinc-600 opacity-0 group-focus-within/field:opacity-100 transition-opacity font-mono">// READY</span>
                       </label>
                       <input
                         type="text"
                         name="name"
                         required
                         placeholder="Your Name"
-                        className="w-full px-4 py-3 bg-zinc-900 border border-zinc-800 text-white placeholder-zinc-600 font-mono text-sm focus:outline-none focus:border-cyan-400 focus:shadow-[0_0_12px_rgba(34,211,238,0.25)] transition-all duration-200 hud-clip-sm"
+                        className="w-full px-4 py-3 bg-zinc-900 border border-zinc-800 text-white placeholder-zinc-650 font-mono text-sm focus:outline-none focus:border-cyan-400 focus:bg-zinc-950 focus:shadow-[0_0_15px_rgba(34,211,238,0.2)] transition-all duration-200 hud-clip-sm"
                       />
                     </div>
 
-                    <div>
-                      <label className="block text-xs font-mono uppercase tracking-wider text-cyan-400 mb-2">
-                        &gt; CONTACT_EMAIL
+                    <div className="relative group/field">
+                      <label className="block text-xs font-mono uppercase tracking-wider text-cyan-400 mb-2 flex justify-between">
+                        <span>&gt; CONTACT_EMAIL</span>
+                        <span className="text-[9px] text-zinc-600 opacity-0 group-focus-within/field:opacity-100 transition-opacity font-mono">// VERIFYING</span>
                       </label>
                       <input
                         type="email"
                         name="email"
                         required
                         placeholder="you@example.com"
-                        className="w-full px-4 py-3 bg-zinc-900 border border-zinc-800 text-white placeholder-zinc-600 font-mono text-sm focus:outline-none focus:border-cyan-400 focus:shadow-[0_0_12px_rgba(34,211,238,0.25)] transition-all duration-200 hud-clip-sm"
+                        className="w-full px-4 py-3 bg-zinc-900 border border-zinc-800 text-white placeholder-zinc-650 font-mono text-sm focus:outline-none focus:border-cyan-400 focus:bg-zinc-950 focus:shadow-[0_0_15px_rgba(34,211,238,0.2)] transition-all duration-200 hud-clip-sm"
                       />
                     </div>
                   </div>
 
-                  <div>
-                    <label className="block text-xs font-mono uppercase tracking-wider text-cyan-400 mb-2">
-                      &gt; TRANSMISSION_PAYLOAD
+                  <div className="relative group/field">
+                    <label className="block text-xs font-mono uppercase tracking-wider text-cyan-400 mb-2 flex justify-between">
+                      <span>&gt; TRANSMISSION_PAYLOAD</span>
+                      <span className="text-[9px] text-zinc-600 opacity-0 group-focus-within/field:opacity-100 transition-opacity font-mono">// COMPILING_PAYLOAD</span>
                     </label>
                     <textarea
                       name="message"
                       required
                       rows={5}
                       placeholder="Tell me about your project, mechanics, or inquiry..."
-                      className="w-full px-4 py-3 bg-zinc-900 border border-zinc-800 text-white placeholder-zinc-600 font-mono text-sm focus:outline-none focus:border-cyan-400 focus:shadow-[0_0_12px_rgba(34,211,238,0.25)] transition-all duration-200 resize-none hud-clip-sm"
+                      className="w-full px-4 py-3 bg-zinc-900 border border-zinc-800 text-white placeholder-zinc-650 font-mono text-sm focus:outline-none focus:border-cyan-400 focus:bg-zinc-950 focus:shadow-[0_0_15px_rgba(34,211,238,0.2)] transition-all duration-200 resize-none hud-clip-sm"
                     />
                   </div>
 
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="group flex items-center justify-center gap-2 w-full sm:w-auto px-8 py-3.5 bg-cyan-400 text-black font-mono text-xs font-bold uppercase tracking-wider shadow-[0_0_20px_rgba(34,211,238,0.3)] transition-all duration-200 hover:bg-cyan-300 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed hud-clip-sm cursor-pointer"
+                    className="group flex items-center justify-center gap-3 w-full sm:w-auto px-8 py-3.5 bg-cyan-400 text-black font-mono text-xs font-bold uppercase tracking-wider shadow-[0_0_20px_rgba(34,211,238,0.3)] transition-all duration-200 hover:bg-cyan-300 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed hud-clip-sm cursor-pointer"
                   >
-                    <span>
-                      {isSubmitting ? "TRANSMITTING..." : "> DISPATCH_MESSAGE"}
-                    </span>
-                    {!isSubmitting && (
-                      <span className="transition-transform duration-200 group-hover:translate-x-1">
-                        →
+                    {isSubmitting ? (
+                      <span className="flex items-center gap-2">
+                        <span className="animate-pulse">TRANSMITTING OVER LINK...</span>
+                        <span className="w-12 h-1 bg-black/30 overflow-hidden relative inline-block rounded-sm">
+                          <span className="absolute top-0 bottom-0 left-0 bg-black w-[70%] animate-pulse" />
+                        </span>
                       </span>
+                    ) : (
+                      <>
+                        <span>&gt; DISPATCH_MESSAGE</span>
+                        <span className="transition-transform duration-200 group-hover:translate-x-1">→</span>
+                      </>
                     )}
                   </button>
                 </form>

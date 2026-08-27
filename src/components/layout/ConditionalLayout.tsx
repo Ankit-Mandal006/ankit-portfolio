@@ -2,7 +2,6 @@
 
 import { usePathname } from "next/navigation";
 import Navbar from "@/components/layout/Navbar";
-import ScrollProgress from "@/components/layout/ScrollProgress";
 
 export default function ConditionalNavbar() {
   const pathname = usePathname();
@@ -12,7 +11,6 @@ export default function ConditionalNavbar() {
 
   return (
     <>
-      <ScrollProgress />
       <Navbar />
     </>
   );

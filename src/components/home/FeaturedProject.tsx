@@ -47,25 +47,26 @@ export default async function FeaturedProject() {
                 border
                 border-cyan-500/30
                 shadow-[0_0_20px_rgba(34,211,238,0.05)]
-                hover:shadow-[0_0_30px_rgba(34,211,238,0.2)]
+                hover:shadow-[0_0_30px_rgba(34,211,238,0.25)]
                 hover:border-cyan-400
                 transition-all
                 duration-500
                 hud-clip
+                cyber-card
                 flex
                 flex-col
               "
             >
               {/* Tactical Corner Markers */}
-              <span className="absolute top-1 left-1 text-[9px] font-mono text-cyan-500/40 pointer-events-none z-10">┌</span>
-              <span className="absolute top-1 right-5 text-[9px] font-mono text-cyan-500/40 pointer-events-none z-10">┐</span>
-              <span className="absolute bottom-5 left-1 text-[9px] font-mono text-cyan-500/40 pointer-events-none z-10">└</span>
+              <span className="absolute top-1.5 left-1.5 text-[9px] font-mono text-cyan-500/40 pointer-events-none z-10">┌</span>
+              <span className="absolute top-1.5 right-5 text-[9px] font-mono text-cyan-500/40 pointer-events-none z-10">┐</span>
+              <span className="absolute bottom-5 left-1.5 text-[9px] font-mono text-cyan-500/40 pointer-events-none z-10">└</span>
 
               {/* Top Accent Line */}
-              <div className="absolute top-0 left-0 right-4 h-[2px] bg-gradient-to-r from-cyan-500 via-teal-400 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10" />
+              <div className="absolute top-0 left-0 right-4 h-[2px] bg-gradient-to-r from-cyan-400 via-teal-300 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10" />
 
               {/* IMAGE CONTAINER */}
-              <div className="relative aspect-video overflow-hidden border-b border-zinc-800/80">
+              <div className="relative aspect-video overflow-hidden border-b border-zinc-900 bg-zinc-950">
                 <Image
                   src={cover}
                   alt={project.title}
@@ -79,8 +80,8 @@ export default async function FeaturedProject() {
                     object-cover
                     transition-all
                     duration-500
-                    group-hover:scale-110
-                    group-hover:blur-sm
+                    group-hover:scale-105
+                    group-hover:brightness-50
                   "
                 />
 
@@ -109,11 +110,11 @@ export default async function FeaturedProject() {
                       items-center
                       gap-1.5
                       border
-                      border-cyan-400/40
-                      bg-zinc-950/80
+                      border-cyan-400/45
+                      bg-zinc-950/90
                       px-2.5
                       py-1
-                      text-[10px]
+                      text-[9px]
                       font-mono
                       uppercase
                       tracking-widest
@@ -125,7 +126,7 @@ export default async function FeaturedProject() {
                     "
                   >
                     <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
-                    {sysId} :: FEATURED
+                    [MISSION_REF: {sysId}]
                   </span>
                 </div>
 
@@ -224,8 +225,9 @@ export default async function FeaturedProject() {
               >
                 <div>
                   <div className="flex items-center justify-between text-xs font-mono text-zinc-500 mb-2">
-                    <span className="text-cyan-400/80">{sysId}</span>
-                    <span className="text-[10px] tracking-widest uppercase text-zinc-400">
+                    <span className="text-cyan-400/80 font-bold">[SYS_REF: {sysId}]</span>
+                    <span className="text-[9px] tracking-widest uppercase text-emerald-400 flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                       SYS_ACTIVE
                     </span>
                   </div>

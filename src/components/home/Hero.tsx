@@ -1,8 +1,9 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { Gamepad2, Palette, Mail } from "lucide-react";
+import { Gamepad2, Palette, Mail, Terminal, Shield, Cpu, Activity } from "lucide-react";
 
 // Custom GitHub SVG Icon
 function GithubIcon(props: React.SVGProps<SVGSVGElement>) {
@@ -27,271 +28,269 @@ function LinkedinIcon(props: React.SVGProps<SVGSVGElement>) {
 }
 
 export default function Hero() {
-  const socialLinks = [
-    {
-      name: "GitHub",
-      href: "https://github.com/ankit-mandal006",
-      icon: GithubIcon,
-    },
-    {
-      name: "LinkedIn",
-      href: "https://www.linkedin.com/in/ankit-mandal-724890359/",
-      icon: LinkedinIcon,
-    },
-    {
-      name: "Itch.io",
-      href: "https://ankit-mandal006.itch.io/",
-      icon: Gamepad2,
-    },
-    {
-      name: "ArtStation",
-      href: "https://www.artstation.com/ankitmandal006/albums/14439986",
-      icon: Palette,
-    },
-    {
-      name: "Email",
-      href: "mailto:mandal.ankit190506@gmail.com",
-      icon: Mail,
-    },
+  const [bootComplete, setBootComplete] = useState(false);
+  const [bootLogs, setBootLogs] = useState<string[]>([]);
+  const [currentBioIndex, setCurrentBioIndex] = useState(0);
+  const [typedBio, setTypedBio] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const bios = [
+    "Designing stealth systems, AI behaviors, and mechanical gameplay dynamics.",
+    "Developing high-performance C# script architectures and custom render pipelines.",
+    "Crafting immersive game mechanics, real-time algorithms, and dynamic worlds.",
   ];
 
-  return (
-    <section
-      className="
-        relative
-        min-h-screen
-        flex
-        items-center
-        justify-center
-        pt-24
-        pb-16
-        overflow-hidden
-        text-white
-        font-sans
-      "
-    >
-      {/* Background Glow */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(34,211,238,0.12),transparent_65%)]" />
+  const socialLinks = [
+    { name: "GitHub", href: "https://github.com/ankit-mandal006", icon: GithubIcon },
+    { name: "LinkedIn", href: "https://www.linkedin.com/in/ankit-mandal-724890359/", icon: LinkedinIcon },
+    { name: "Itch.io", href: "https://ankit-mandal006.itch.io/", icon: Gamepad2 },
+    { name: "ArtStation", href: "https://www.artstation.com/ankitmandal006/albums/14439986", icon: Palette },
+    { name: "Email", href: "mailto:mandal.ankit190506@gmail.com", icon: Mail },
+  ];
 
-      {/* Decorative Blur */}
+  // 1. Boot sequence
+  useEffect(() => {
+    if (typeof window !== "undefined" && sessionStorage.getItem("portfolio_booted")) {
+      setBootComplete(true);
+      return;
+    }
+
+    const logs = [
+      "INITIALIZING ANKIT-PORTFOLIO CORE ENGINE [v5.0.0]...",
+      "LOADING ASSETS & PHYSICS CONTROLLERS... [OK]",
+      "SECURING CONNECTION TO SUPABASE STORAGE BUCKET...",
+      "SUPABASE DATABASE CONNECTED [STATUS: STABLE]",
+      "ASSEMBLING UNITY ECS & C# COMPILED BINARIES...",
+      "AI BEHAVIOR STATEMACHINES REGISTERED SUCCESSFULLY.",
+      "BOOT SEQUENCE FINISHED. DISPATCHING INTERACTIVE HOLOGRAPHIC HUD."
+    ];
+
+    let timer = 0;
+    logs.forEach((log, index) => {
+      timer += index === 0 ? 100 : Math.random() * 300 + 200;
+      setTimeout(() => {
+        setBootLogs((prev) => [...prev, log]);
+        if (index === logs.length - 1) {
+          setTimeout(() => {
+            setBootComplete(true);
+            sessionStorage.setItem("portfolio_booted", "true");
+          }, 600);
+        }
+      }, timer);
+    });
+  }, []);
+
+  // 2. Typewriter Effect
+  useEffect(() => {
+    if (!bootComplete) return;
+
+    let timer: NodeJS.Timeout;
+    const currentFullText = bios[currentBioIndex];
+    const typingSpeed = isDeleting ? 20 : 40;
+
+    if (!isDeleting && typedBio === currentFullText) {
+      timer = setTimeout(() => setIsDeleting(true), 3000);
+    } else if (isDeleting && typedBio === "") {
+      setIsDeleting(false);
+      setCurrentBioIndex((prev) => (prev + 1) % bios.length);
+    } else {
+      timer = setTimeout(() => {
+        setTypedBio((prev) =>
+          isDeleting
+            ? currentFullText.substring(0, prev.length - 1)
+            : currentFullText.substring(0, prev.length + 1)
+        );
+      }, typingSpeed);
+    }
+
+    return () => clearTimeout(timer);
+  }, [typedBio, isDeleting, currentBioIndex, bootComplete]);
+
+  return (
+    <section className="relative min-h-screen flex items-center justify-center pt-24 pb-16 overflow-hidden text-white font-sans bg-zinc-950/20">
+      
+      {/* HUD Diagonal Grid lines */}
+      <div className="absolute inset-0 opacity-10 bg-[linear-gradient(45deg,rgba(34,211,238,0.05)_1px,transparent_1.5px)] pointer-events-none" />
+
+      {/* Twinkling ambient glowing circle background */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(34,211,238,0.08),transparent_65%)] pointer-events-none" />
       <div className="absolute top-40 left-1/2 -translate-x-1/2 w-[700px] h-[700px] rounded-full bg-cyan-500/5 blur-3xl pointer-events-none" />
 
-      <div className="relative z-10 max-w-5xl text-center px-6 flex flex-col items-center">
-        {/* HUD Subtitle / Status Badge */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="
-            inline-flex
-            items-center
-            gap-2
-            px-3.5
-            py-1.5
-            border
-            border-cyan-500/40
-            bg-zinc-950/80
-            backdrop-blur-md
-            mb-6
-            hud-clip-sm
-            shadow-[0_0_15px_rgba(34,211,238,0.1)]
-          "
-        >
-          <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
-          <span className="font-mono text-xs uppercase tracking-[0.3em] text-cyan-300">
-            // SYS_ROLE :: UNITY_GAME_DEVELOPER //
-          </span>
-        </motion.div>
-
-        {/* Hero Title */}
-        <motion.h1
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{
-            duration: 0.8,
-            delay: 0.2,
-          }}
-          className="
-            text-7xl
-            md:text-9xl
-            font-black
-            leading-none
-            tracking-tight
-            drop-shadow-[0_0_25px_rgba(34,211,238,0.2)]
-          "
-        >
-          ANKIT
-          <br />
-          <span
-            className="
-              text-transparent
-              bg-clip-text
-              bg-gradient-to-r
-              from-cyan-300
-              via-teal-200
-              to-white
-            "
+      <AnimatePresence mode="wait">
+        {!bootComplete ? (
+          // TERMINAL BOOT SEQUENCE SCREEN
+          <motion.div
+            key="boot"
+            exit={{ opacity: 0, scale: 0.98 }}
+            transition={{ duration: 0.5, ease: "easeInOut" }}
+            className="w-full max-w-2xl px-6 font-mono text-left"
           >
-            MANDAL
-          </span>
-        </motion.h1>
-
-        {/* Bio Paragraph */}
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{
-            duration: 0.8,
-            delay: 0.5,
-          }}
-          className="
-            mt-8
-            text-base
-            md:text-xl
-            text-zinc-400
-            max-w-3xl
-            mx-auto
-            leading-relaxed
-          "
-        >
-          Designing stealth systems, AI behaviours, immersive worlds, and
-          narrative-driven gameplay experiences using Unity.
-        </motion.p>
-
-        {/* Primary Action Buttons */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{
-            duration: 0.8,
-            delay: 0.8,
-          }}
-          className="
-            mt-10
-            flex
-            justify-center
-            gap-4
-            flex-wrap
-          "
-        >
-          <Link
-            href="/projects"
-            className="
-              group
-              flex
-              items-center
-              gap-2
-              bg-cyan-400
-              px-8
-              py-4
-              font-mono
-              text-xs
-              font-bold
-              uppercase
-              tracking-wider
-              text-black
-              shadow-[0_0_20px_rgba(34,211,238,0.4)]
-              transition-all
-              duration-300
-              hover:scale-105
-              hover:bg-cyan-300
-              hud-clip-sm
-            "
+            <div className="border border-zinc-800 bg-zinc-950/90 p-6 rounded-md shadow-2xl relative">
+              {/* Top title bar */}
+              <div className="flex items-center justify-between pb-3 border-b border-zinc-900 mb-4 text-[10px] text-zinc-500">
+                <span className="flex items-center gap-1.5 font-bold uppercase">
+                  <Terminal className="w-3.5 h-3.5 text-cyan-400" />
+                  System Terminal Boot Logger
+                </span>
+                <span>SYS_INIT: OK</span>
+              </div>
+              <div className="space-y-2 text-xs md:text-sm text-cyan-400/90 min-h-[160px]">
+                {bootLogs.map((log, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.15 }}
+                    className="flex items-start gap-2 leading-relaxed"
+                  >
+                    <span className="text-zinc-600 flex-shrink-0">&gt;</span>
+                    <span>{log}</span>
+                  </motion.div>
+                ))}
+                <span className="inline-block w-2.5 h-4 bg-cyan-400 animate-pulse align-middle ml-1" />
+              </div>
+            </div>
+          </motion.div>
+        ) : (
+          // MAIN HOLOGRAPHIC HUD HOME SCREEN
+          <motion.div
+            key="hud"
+            initial={{ opacity: 0, scale: 1.02 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+            className="relative z-10 w-full max-w-5xl text-center px-6 flex flex-col items-center"
           >
-            <span>&gt; VIEW_PROJECTS</span>
-            <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
-          </Link>
+            {/* CORNER HUD MARKERS (Interactive Frame) */}
+            <div className="absolute -inset-10 border border-cyan-500/10 pointer-events-none rounded-2xl hidden md:block">
+              {/* Brackets */}
+              <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-cyan-400/40 rounded-tl-lg" />
+              <div className="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-cyan-400/40 rounded-tr-lg" />
+              <div className="absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 border-cyan-400/40 rounded-bl-lg" />
+              <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-cyan-400/40 rounded-br-lg" />
+            </div>
 
-          <a
-            href="/AnkitMandalResume.pdf"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="
-              flex
-              items-center
-              gap-2
-              border
-              border-cyan-400/50
-              bg-zinc-950/80
-              px-8
-              py-4
-              font-mono
-              text-xs
-              font-bold
-              uppercase
-              tracking-wider
-              text-cyan-300
-              backdrop-blur-md
-              shadow-[0_0_15px_rgba(34,211,238,0.05)]
-              transition-all
-              duration-300
-              hover:scale-105
-              hover:border-cyan-300
-              hover:bg-zinc-900
-              hud-clip-sm
-            "
-          >
-            <span>&lt;/&gt; RESUME</span>
-          </a>
-        </motion.div>
+            {/* Left and Right Cyber Widget Info Panels (HUD Decoration) */}
+            <div className="absolute left-[-200px] top-1/4 w-[160px] hidden xl:flex flex-col text-left font-mono space-y-4 pointer-events-none opacity-45 border-l border-zinc-800 pl-4">
+              <div>
+                <span className="block text-[8px] text-zinc-500 uppercase tracking-widest">Hardware Info</span>
+                <span className="text-[10px] text-cyan-400 font-bold flex items-center gap-1">
+                  <Cpu className="w-3.5 h-3.5" /> RTX_ACTIVE
+                </span>
+              </div>
+              <div>
+                <span className="block text-[8px] text-zinc-500 uppercase tracking-widest">System Load</span>
+                <span className="text-[10px] text-zinc-300">GPU: 48°C • CPU: 22%</span>
+              </div>
+              <div className="space-y-1">
+                <span className="block text-[8px] text-zinc-500 uppercase tracking-widest">Telemetry</span>
+                <div className="flex items-center gap-1.5 text-[9px] text-emerald-400 font-bold">
+                  <Activity className="w-3 h-3 animate-pulse" /> 144 FPS
+                </div>
+              </div>
+            </div>
 
-        {/* Professional Social Badges */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{
-            duration: 0.8,
-            delay: 1.0,
-          }}
-          className="
-            mt-12
-            flex
-            items-center
-            justify-center
-            gap-3
-            flex-wrap
-          "
-        >
-          {socialLinks.map((social) => {
-            const Icon = social.icon;
-            return (
-              <a
-                key={social.name}
-                href={social.href}
-                target={social.name !== "Email" ? "_blank" : undefined}
-                rel="noopener noreferrer"
-                className="
-                  group
-                  flex
-                  items-center
-                  gap-2.5
-                  px-4
-                  py-2.5
-                  bg-zinc-950/90
-                  border
-                  border-cyan-500/30
-                  backdrop-blur-sm
-                  text-zinc-400
-                  font-mono
-                  text-xs
-                  uppercase
-                  tracking-wider
-                  transition-all
-                  duration-300
-                  hover:border-cyan-400
-                  hover:text-cyan-300
-                  hover:-translate-y-0.5
-                  hover:shadow-[0_0_15px_rgba(34,211,238,0.2)]
-                  hud-clip-sm
-                "
+            <div className="absolute right-[-200px] top-1/4 w-[160px] hidden xl:flex flex-col text-right font-mono space-y-4 pointer-events-none opacity-45 border-r border-zinc-800 pr-4">
+              <div>
+                <span className="block text-[8px] text-zinc-500 uppercase tracking-widest">Engine Status</span>
+                <span className="text-[10px] text-emerald-400 font-bold flex items-center justify-end gap-1">
+                  UNITY_ONLINE <Shield className="w-3.5 h-3.5 text-emerald-500" />
+                </span>
+              </div>
+              <div>
+                <span className="block text-[8px] text-zinc-500 uppercase tracking-widest">Memory Pool</span>
+                <span className="text-[10px] text-zinc-300">HEAP_FREE: 92.4%</span>
+              </div>
+              <div>
+                <span className="block text-[8px] text-zinc-500 uppercase tracking-widest">Build Status</span>
+                <span className="text-[10px] text-cyan-400">READY (0 ERRORS)</span>
+              </div>
+            </div>
+
+            {/* HUD Status Badge */}
+            <motion.div
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="inline-flex items-center gap-2 px-3.5 py-1.5 border border-cyan-500/40 bg-zinc-950/80 backdrop-blur-md mb-6 hud-clip-sm shadow-[0_0_15px_rgba(34,211,238,0.1)] hover:border-cyan-400/80 transition-colors"
+            >
+              <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
+              <span className="font-mono text-[10px] md:text-xs uppercase tracking-[0.3em] text-cyan-300">
+                // SYS_ROLE :: UNITY_GAME_DEVELOPER //
+              </span>
+            </motion.div>
+
+            {/* Title with Glitch Glow */}
+            <motion.h1
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="text-7xl md:text-9xl font-black leading-none tracking-tight text-white drop-shadow-[0_0_30px_rgba(34,211,238,0.25)] select-none text-glow"
+            >
+              ANKIT
+              <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-teal-200 to-white">
+                MANDAL
+              </span>
+            </motion.h1>
+
+            {/* Typewritten Bio Tagline */}
+            <div className="h-[80px] md:h-[60px] flex items-center justify-center mt-6">
+              <p className="text-base md:text-xl text-zinc-300 font-mono max-w-3xl leading-relaxed animate-cursor">
+                {typedBio}
+              </p>
+            </div>
+
+            {/* Call To Actions */}
+            <motion.div
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+              className="mt-10 flex justify-center gap-4 flex-wrap"
+            >
+              <Link
+                href="/projects"
+                className="group flex items-center gap-2 bg-cyan-400 px-8 py-4 font-mono text-xs font-bold uppercase tracking-wider text-black shadow-[0_0_20px_rgba(34,211,238,0.4)] hover:shadow-[0_0_30px_rgba(34,211,238,0.6)] hover:bg-cyan-300 transition-all duration-300 hover:scale-105 hud-clip-sm"
               >
-                <Icon className="w-4 h-4 text-cyan-400/70 group-hover:text-cyan-300 transition-colors" />
-                <span>{social.name}</span>
+                <span>&gt; EXECUTE_LAUNCH_PORTFOLIO</span>
+                <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
+              </Link>
+
+              <a
+                href="/resume.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 border border-cyan-400/50 bg-zinc-950/80 px-8 py-4 font-mono text-xs font-bold uppercase tracking-wider text-cyan-300 backdrop-blur-md shadow-[0_0_15px_rgba(34,211,238,0.05)] hover:border-cyan-300 hover:bg-zinc-900 transition-all duration-300 hover:scale-105 hud-clip-sm"
+              >
+                <span>&lt;/&gt; TELEPORT_RESUME</span>
               </a>
-            );
-          })}
-        </motion.div>
-      </div>
+            </motion.div>
+
+            {/* Social Panel */}
+            <motion.div
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.5 }}
+              className="mt-12 flex items-center justify-center gap-3 flex-wrap"
+            >
+              {socialLinks.map((social) => {
+                const Icon = social.icon;
+                return (
+                  <a
+                    key={social.name}
+                    href={social.href}
+                    target={social.name !== "Email" ? "_blank" : undefined}
+                    rel="noopener noreferrer"
+                    className="group flex items-center gap-2.5 px-4 py-2.5 bg-zinc-950/90 border border-cyan-500/30 backdrop-blur-sm text-zinc-400 font-mono text-xs uppercase tracking-wider transition-all duration-300 hover:border-cyan-400 hover:text-cyan-300 hover:-translate-y-0.5 hover:shadow-[0_0_15px_rgba(34,211,238,0.2)] hud-clip-sm"
+                  >
+                    <Icon className="w-4 h-4 text-cyan-400/70 group-hover:text-cyan-300 transition-colors" />
+                    <span>{social.name}</span>
+                  </a>
+                );
+              })}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 }

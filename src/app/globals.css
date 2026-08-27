@@ -233,6 +233,79 @@ body::after {
 }
 
 /* ==========================================
+   CYBERPUNK & GAME-DEV ANIMATION UTILITIES
+   ========================================== */
+@keyframes terminal-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.animate-cursor::after {
+  content: "█";
+  display: inline-block;
+  margin-left: 2px;
+  color: #22d3ee;
+  animation: terminal-blink 1s steps(2, start) infinite;
+}
+
+@keyframes glow-pulse {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(34, 211, 238, 0.15), inset 0 0 5px rgba(34, 211, 238, 0.05);
+    border-color: rgba(34, 211, 238, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 22px rgba(34, 211, 238, 0.35), inset 0 0 10px rgba(34, 211, 238, 0.15);
+    border-color: rgba(34, 211, 238, 0.6);
+  }
+}
+
+.cyber-glow-pulse {
+  animation: glow-pulse 3s infinite ease-in-out;
+}
+
+@keyframes scan-line-hud {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
+}
+
+.cyber-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.cyber-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 40%;
+  background: linear-gradient(to bottom, transparent, rgba(34, 211, 238, 0.04), transparent);
+  pointer-events: none;
+  z-index: 10;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.cyber-card:hover::before {
+  opacity: 1;
+  animation: scan-line-hud 2.5s linear infinite;
+}
+
+.text-glow {
+  text-shadow: 0 0 10px rgba(34, 211, 238, 0.5), 0 0 20px rgba(34, 211, 238, 0.2);
+}
+
+.border-glow-hover {
+  transition: all 0.3s ease;
+}
+
+.border-glow-hover:hover {
+  border-color: #22d3ee;
+  box-shadow: 0 0 15px rgba(34, 211, 238, 0.25);
+}
+
+/* ==========================================
    DEVLOG REPORTS STYLING
    ========================================== */
 .report-container {
