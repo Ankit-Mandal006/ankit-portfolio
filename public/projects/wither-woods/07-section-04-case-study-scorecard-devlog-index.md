@@ -2,6 +2,16 @@
 
 # SECTION 04 — Case Study Scorecard & Devlog Index
 
+# SECTION 04 — Case Study Scorecard & Devlog Index
+
+# SECTION 04 — Case Study Scorecard & Devlog Index
+
+# SECTION 04 — Case Study Scorecard & Devlog Index
+
+# SECTION 04 — Case Study Scorecard & Devlog Index
+
+# SECTION 04 — Case Study Scorecard & Devlog Index
+
 ## Case Study Scorecard
 
 | Skill Area | Evidence Demonstrated in *WitherWoods* |

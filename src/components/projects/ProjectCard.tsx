@@ -8,6 +8,8 @@ type Props = {
   cover?: string;
   itch?: string;
   github?: string;
+  engine?: string;
+  featured?: boolean;
 };
 
 export default function ProjectCard({
@@ -17,6 +19,8 @@ export default function ProjectCard({
   cover,
   itch,
   github,
+  engine = "Unity",
+  featured = false,
 }: Props) {
   return (
     <article
@@ -50,7 +54,7 @@ export default function ProjectCard({
             src={cover || "/defaults/project-cover.png"}
             alt={title}
             fill
-            sizes="(max-width: 1024px) 100vw, 50vw"
+            sizes="(max-width: 1024px) 100vw, 25vw"
             priority={false}
             className="
               object-cover
@@ -65,8 +69,8 @@ export default function ProjectCard({
         </Link>
 
         {/* Tactical Corner Badge */}
-        <div className="absolute top-3 left-3 z-10 font-mono text-[10px] uppercase tracking-widest text-cyan-400 bg-zinc-950/90 border border-cyan-500/40 px-2.5 py-1 backdrop-blur-md hud-clip-sm pointer-events-none">
-          // PROJ_ID: {slug.toUpperCase()}
+        <div className="absolute top-3 left-3 z-10 font-mono text-[9px] uppercase tracking-widest text-cyan-400 bg-zinc-950/90 border border-cyan-500/40 px-2 py-0.5 backdrop-blur-md hud-clip-sm pointer-events-none">
+          // ID: {slug.slice(0, 8).toUpperCase()}
         </div>
 
         {/* HOVER OVERLAY ACTIONS */}
@@ -154,48 +158,65 @@ export default function ProjectCard({
       </div>
 
       {/* PROJECT INFORMATION */}
-      <div className="p-6 flex flex-col justify-between flex-grow font-sans">
-        <div>
-          <h3
-            className="
-              text-2xl
-              font-black
-              tracking-tight
-              text-white
-              group-hover:text-cyan-300
-              transition-colors
-              duration-200
-            "
-          >
-            {title}
-          </h3>
+      <div className="p-5 flex flex-col justify-between flex-grow font-sans gap-3">
+        <div className="space-y-2">
+          {/* Category/Engine Tags */}
+          <div className="flex flex-wrap items-center gap-1.5 text-[9px] font-mono font-bold tracking-wider">
+            <span className="px-1.5 py-0.5 bg-zinc-900 border border-zinc-800 text-zinc-400 hud-clip-sm uppercase">
+              {engine}
+            </span>
+            <span className="px-1.5 py-0.5 bg-cyan-950/40 border border-cyan-800/40 text-cyan-400 hud-clip-sm uppercase">
+              {featured ? "Featured" : "Project"}
+            </span>
+          </div>
 
-          <p className="mt-3 text-sm text-zinc-400 line-clamp-3 leading-relaxed">
+          {/* Title */}
+          <Link href={`/projects/${slug}`}>
+            <h3
+              className="
+                text-lg
+                font-black
+                tracking-tight
+                text-white
+                group-hover:text-cyan-300
+                transition-colors
+                duration-200
+                line-clamp-1
+              "
+            >
+              {title}
+            </h3>
+          </Link>
+
+          <p className="text-xs text-zinc-400 line-clamp-2 leading-relaxed">
             {description}
           </p>
         </div>
 
-        <Link
-          href={`/projects/${slug}`}
-          className="
-            mt-6
-            inline-flex
-            items-center
-            gap-2
-            font-mono
-            text-xs
-            uppercase
-            tracking-widest
-            text-cyan-400
-            group-hover:text-cyan-300
-            transition-colors
-          "
-        >
-          <span>VIEW CASE STUDY</span>
-          <span className="text-cyan-400 transition-transform group-hover:translate-x-1">
-            →
-          </span>
-        </Link>
+        {/* Case Study Link */}
+        <div className="flex items-center justify-between pt-2 border-t border-zinc-900">
+          <span className="text-[10px] text-zinc-500 font-mono font-medium">Ankit Mandal</span>
+          <Link
+            href={`/projects/${slug}`}
+            className="
+              inline-flex
+              items-center
+              gap-1
+              font-mono
+              text-[10px]
+              uppercase
+              tracking-wider
+              text-cyan-400
+              group-hover:text-cyan-300
+              transition-colors
+            "
+          >
+            <span>VIEW CASE STUDY</span>
+            <span className="text-cyan-400 transition-transform group-hover:translate-x-1">
+              →
+            </span>
+          </Link>
+        </div>
       </div>
     </article>
   );

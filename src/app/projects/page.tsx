@@ -23,7 +23,7 @@ export default async function ProjectsPage() {
       </section>
 
       {/* Projects Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
         {projects.map((project) => (
           <ProjectCard
             key={project.slug}
@@ -33,6 +33,8 @@ export default async function ProjectsPage() {
             cover={project.cover}
             itch={project.itch}
             github={project.github}
+            engine={project.engine}
+            featured={project.featured}
           />
         ))}
       </div>
