@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { FolderGit2, Palette, Mail, Terminal, Shield, Cpu, Activity, Gamepad2 } from "lucide-react";
-import GameArena from "@/components/home/GameArena";
+import GameArena from "@/components/game-arena/GameArena";
 import GlitchTitle from "@/components/home/GlitchTitle";
 
 function GithubIcon(props: React.SVGProps<SVGSVGElement>) {
