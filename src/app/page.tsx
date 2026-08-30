@@ -4,6 +4,7 @@ import FeaturedProject from "@/components/home/FeaturedProject";
 import About from "@/components/home/About";
 import Skills from "@/components/home/Skills";
 import Education from "@/components/home/Education";
+import Experience from "@/components/home/Experience";
 
 export default function HomePage() {
   return (
@@ -15,6 +16,8 @@ export default function HomePage() {
       <Stats />
 
       <FeaturedProject />
+
+      <Experience/>
 
       <Education />
 

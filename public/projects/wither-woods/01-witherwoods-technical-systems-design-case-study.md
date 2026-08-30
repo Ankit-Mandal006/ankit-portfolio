@@ -1,14 +1,3 @@
-# WitherWoods: Technical & Systems Design Case Study
-
-# WitherWoods: Technical & Systems Design Case Study
-
-# WitherWoods: Technical & Systems Design Case Study
-
-# WitherWoods: Technical & Systems Design Case Study
-
-# WitherWoods: Technical & Systems Design Case Study
-
-# WitherWoods: Technical & Systems Design Case Study
 
 # WitherWoods: Technical & Systems Design Case Study
 **A Deep-Dive into Multi-Terrain AI Navigation, Diegetic Horror Mechanics, and Procedural Dimension Systems in Unity URP**
