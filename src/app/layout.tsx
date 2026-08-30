@@ -20,6 +20,13 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Ankit Mandal",
   description: "Unity Developer • Game Designer • Creator of Spy-Fiction",
+  icons: {
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+    ],
+    shortcut: "/icon.svg",
+    apple: "/icon.svg",
+  },
 };
 
 export default function RootLayout({
