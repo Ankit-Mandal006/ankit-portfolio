@@ -5,23 +5,36 @@ import About from "@/components/home/About";
 import Skills from "@/components/home/Skills";
 import Education from "@/components/home/Education";
 import Experience from "@/components/home/Experience";
+import SectionContainer from "@/components/ui/SectionContainer";
 
 export default function HomePage() {
   return (
-    <main>
+    <main className="w-full space-y-16 md:space-y-24 py-12">
       <Hero />
 
-      <About />
+      <SectionContainer>
+        <About />
+      </SectionContainer>
 
-      <Stats />
+      <SectionContainer>
+        <Stats />
+      </SectionContainer>
 
-      <FeaturedProject />
+      <SectionContainer>
+        <FeaturedProject />
+      </SectionContainer>
 
-      <Experience/>
+      <SectionContainer>
+        <Experience />
+      </SectionContainer>
 
-      <Education />
+      <SectionContainer>
+        <Education />
+      </SectionContainer>
 
-      <Skills />
+      <SectionContainer>
+        <Skills />
+      </SectionContainer>
     </main>
   );
 }
