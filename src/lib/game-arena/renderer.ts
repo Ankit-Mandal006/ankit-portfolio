@@ -3,307 +3,367 @@ import {
   PlayerPosition,
   CameraPosition,
   Particle,
+  Asteroid,
+  Laser,
+  Star,
   MAP_SIZE,
   GAME_CONFIG,
 } from "./types";
 
 export class GameRenderer {
   private ctx: CanvasRenderingContext2D;
-  private width: number;
-  private height: number;
+  private width: number = 0;
+  private height: number = 0;
+  private dpr: number = 1;
+  private scanlinePattern: CanvasPattern | null = null;
 
   constructor(canvas: HTMLCanvasElement) {
-    const ctx = canvas.getContext("2d");
-    if (!ctx) throw new Error("Failed to get canvas context");
-    this.ctx = ctx;
-    this.width = canvas.width;
-    this.height = canvas.height;
+    const context = canvas.getContext("2d");
+    if (!context) throw new Error("Failed to acquire 2D context");
+    this.ctx = context;
+    this.createScanlinePattern();
   }
 
-  setCanvasSize(width: number, height: number) {
+  // Pre-rendered pattern fixes CRT rendering stutter/lag completely
+  private createScanlinePattern() {
+    const patternCanvas = document.createElement("canvas");
+    patternCanvas.width = 1;
+    patternCanvas.height = 4;
+    const pCtx = patternCanvas.getContext("2d");
+    if (pCtx) {
+      pCtx.fillStyle = "rgba(0, 0, 0, 0.25)";
+      pCtx.fillRect(0, 0, 1, 2);
+      this.scanlinePattern = this.ctx.createPattern(patternCanvas, "repeat");
+    }
+  }
+
+  public resize(width: number, height: number, dpr: number = 1) {
     this.width = width;
     this.height = height;
+    this.dpr = dpr;
   }
 
-  clear() {
-    this.ctx.fillStyle = "#050508";
+  public getViewBounds() {
+    return {
+      w: this.width / this.dpr,
+      h: this.height / this.dpr,
+    };
+  }
+
+  public clear() {
+    this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+    this.ctx.fillStyle = "#030408";
     this.ctx.fillRect(0, 0, this.width, this.height);
   }
 
-  drawArenaFrame() {
+  public beginCameraTransform(camera: CameraPosition) {
     this.ctx.save();
-    this.ctx.strokeStyle = "#22d3ee44";
-    this.ctx.lineWidth = 4;
-    this.ctx.shadowColor = "#22d3ee";
-    this.ctx.shadowBlur = 20;
-    this.ctx.strokeRect(0, 0, MAP_SIZE.width, MAP_SIZE.height);
-    this.ctx.shadowBlur = 0;
+    this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+    this.ctx.scale(this.dpr, this.dpr);
+    const { w: viewW, h: viewH } = this.getViewBounds();
+
+    const shakeX = (Math.random() - 0.5) * camera.shake;
+    const shakeY = (Math.random() - 0.5) * camera.shake;
+
+    this.ctx.translate(
+      viewW / 2 - camera.x + shakeX,
+      viewH / 2 - camera.y + shakeY
+    );
+  }
+
+  public endCameraTransform() {
     this.ctx.restore();
   }
 
-  drawGrid() {
-    this.ctx.strokeStyle = "#121218";
-    this.ctx.lineWidth = 1;
-    this.ctx.beginPath();
+  public drawStars(stars: Star[]) {
+    const ctx = this.ctx;
+    ctx.save();
+    const time = Date.now() * 0.002;
 
-    const gridSize = GAME_CONFIG.grid.size;
-
-    for (let x = 0; x <= MAP_SIZE.width; x += gridSize) {
-      this.ctx.moveTo(x, 0);
-      this.ctx.lineTo(x, MAP_SIZE.height);
-    }
-
-    for (let y = 0; y <= MAP_SIZE.height; y += gridSize) {
-      this.ctx.moveTo(0, y);
-      this.ctx.lineTo(MAP_SIZE.width, y);
-    }
-
-    this.ctx.stroke();
-  }
-
-  drawParticles(particles: Particle[]) {
-    particles.forEach((p) => {
-      this.ctx.fillStyle = `rgba(34, 211, 238, ${p.alpha})`;
-      this.ctx.beginPath();
-      this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-      this.ctx.fill();
+    stars.forEach((star) => {
+      const alpha = Math.abs(Math.sin(time * star.pulseSpeed + star.x)) * 0.6 + 0.3;
+      ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+      ctx.beginPath();
+      ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+      ctx.fill();
     });
+
+    ctx.restore();
   }
 
-  drawNodeConnections(nodes: GameNode[]) {
-    this.ctx.lineWidth = 1.5;
+  public drawGrid() {
+    const ctx = this.ctx;
+    ctx.save();
+    ctx.strokeStyle = "rgba(0, 243, 255, 0.04)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
 
-    for (let i = 0; i < nodes.length; i++) {
-      for (let j = i + 1; j < nodes.length; j++) {
-        const n1 = nodes[i];
-        const n2 = nodes[j];
-        const dist = Math.hypot(n1.x - n2.x, n1.y - n2.y);
-
-        if (dist < GAME_CONFIG.nodeRadius.connectionDistance) {
-          const opacity =
-            0.15 * (1 - dist / GAME_CONFIG.nodeRadius.connectionDistance);
-          this.ctx.strokeStyle = `rgba(34, 211, 238, ${opacity})`;
-          this.ctx.beginPath();
-          this.ctx.moveTo(n1.x, n1.y);
-          this.ctx.lineTo(n2.x, n2.y);
-          this.ctx.stroke();
-        }
-      }
+    const step = GAME_CONFIG.grid.size;
+    for (let x = 0; x <= MAP_SIZE.width; x += step) {
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, MAP_SIZE.height);
     }
-  }
-
-  drawPlayerToNodeLine(
-    playerPos: PlayerPosition,
-    node: GameNode,
-    color: string
-  ) {
-    this.ctx.strokeStyle = `${color}66`;
-    this.ctx.lineWidth = 2;
-    this.ctx.beginPath();
-    this.ctx.moveTo(playerPos.x, playerPos.y);
-    this.ctx.lineTo(node.x, node.y);
-    this.ctx.stroke();
-  }
-
-  drawNode(node: GameNode, isHovered: boolean, time: number) {
-    const pulse = Math.sin(time + node.x) * 8;
-    const radius = isHovered
-      ? GAME_CONFIG.nodeRadius.hover + 4
-      : GAME_CONFIG.nodeRadius.default + 2;
-
-    // Outer glow circle
-    this.ctx.beginPath();
-    this.ctx.arc(node.x, node.y, radius + pulse, 0, Math.PI * 2);
-    this.ctx.fillStyle = isHovered ? `${node.color}45` : `${node.color}25`;
-    this.ctx.fill();
-
-    // Border ring with glow
-    this.ctx.strokeStyle = node.color;
-    this.ctx.lineWidth = isHovered ? 4 : 2.5;
-    this.ctx.shadowColor = node.color;
-    this.ctx.shadowBlur = isHovered ? 35 : 15;
-    this.ctx.stroke();
-    this.ctx.shadowBlur = 0;
-
-    // Secondary ring
-    if (isHovered) {
-      this.ctx.strokeStyle = `${node.color}60`;
-      this.ctx.lineWidth = 1;
-      this.ctx.beginPath();
-      this.ctx.arc(node.x, node.y, radius + 8, 0, Math.PI * 2);
-      this.ctx.stroke();
+    for (let y = 0; y <= MAP_SIZE.height; y += step) {
+      ctx.moveTo(0, y);
+      ctx.lineTo(MAP_SIZE.width, y);
     }
+    ctx.stroke();
 
-    // Center dot
-    this.ctx.beginPath();
-    this.ctx.arc(node.x, node.y, 12, 0, Math.PI * 2);
-    this.ctx.fillStyle = "#ffffff";
-    this.ctx.shadowColor = node.color;
-    this.ctx.shadowBlur = 8;
-    this.ctx.fill();
-    this.ctx.shadowBlur = 0;
-
-    // Title
-    this.ctx.font = "bold 14px monospace";
-    this.ctx.fillStyle = isHovered ? "#ffffff" : "#d4d4d8";
-    this.ctx.textAlign = "center";
-    this.ctx.fillText(node.title.toUpperCase(), node.x, node.y - 65);
-
-    // Category label
-    this.ctx.font = "11px monospace";
-    this.ctx.fillStyle = node.color;
-    this.ctx.fillText(`[ ${node.category.toUpperCase()} ]`, node.x, node.y - 46);
-
-    // Interaction hint
-    if (isHovered) {
-      this.ctx.font = "bold 11px monospace";
-      this.ctx.fillStyle = node.color;
-      this.ctx.fillText("PRESS [E] TO INSPECT", node.x, node.y + 72);
-    }
+    ctx.strokeStyle = "rgba(0, 243, 255, 0.35)";
+    ctx.lineWidth = 3;
+    ctx.strokeRect(0, 0, MAP_SIZE.width, MAP_SIZE.height);
+    ctx.restore();
   }
 
-  drawNodes(
-    nodes: GameNode[],
-    playerPos: PlayerPosition,
-    onNodeHover: (node: GameNode | null) => void
-  ): GameNode | null {
-    const time = Date.now() * 0.003;
-    let nearNode: GameNode | null = null;
+  public drawNodes(nodes: GameNode[], activeNodeId: string | null) {
+    const ctx = this.ctx;
+    const time = Date.now() * 0.0015;
 
     nodes.forEach((node) => {
-      const dist = Math.hypot(
-        playerPos.x - node.x,
-        playerPos.y - node.y
+      const isActive = node.id === activeNodeId;
+      ctx.save();
+      ctx.translate(node.x, node.y);
+
+      if (node.hasRing) {
+        ctx.save();
+        ctx.rotate(node.ringAngle);
+        ctx.scale(1, 0.35);
+        ctx.beginPath();
+        ctx.arc(0, 0, node.radius * 1.8, 0, Math.PI * 2);
+        ctx.strokeStyle = node.ringColor;
+        ctx.lineWidth = 5;
+        ctx.shadowColor = node.ringColor;
+        ctx.shadowBlur = 10;
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      const grad = ctx.createRadialGradient(
+        -node.radius * 0.3,
+        -node.radius * 0.3,
+        node.radius * 0.1,
+        0,
+        0,
+        node.radius
       );
-      const isHovered = dist < GAME_CONFIG.nodeRadius.interactDistance;
+      grad.addColorStop(0, "#ffffff");
+      grad.addColorStop(0.3, node.color);
+      grad.addColorStop(1, "#030712");
 
-      if (isHovered) {
-        nearNode = node;
+      ctx.beginPath();
+      ctx.arc(0, 0, node.radius, 0, Math.PI * 2);
+      ctx.fillStyle = grad;
+      ctx.shadowColor = node.color;
+      ctx.shadowBlur = isActive ? 28 : 14;
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.arc(0, 0, node.radius + 3 + Math.sin(time * 2) * 2, 0, Math.PI * 2);
+      ctx.strokeStyle = node.color;
+      ctx.lineWidth = isActive ? 3 : 1.5;
+      ctx.stroke();
+
+      ctx.shadowBlur = 0;
+      ctx.font = "bold 13px monospace";
+      ctx.fillStyle = isActive ? "#ffffff" : "#cbd5e1";
+      ctx.textAlign = "center";
+      ctx.fillText(node.title.toUpperCase(), 0, -node.radius - 16);
+
+      if (isActive) {
+        ctx.font = "10px monospace";
+        ctx.fillStyle = node.color;
+        ctx.fillText("[ PRESS E TO INSPECT ]", 0, node.radius + 22);
       }
 
-      if (dist < 180) {
-        this.drawPlayerToNodeLine(playerPos, node, node.color);
-      }
-
-      this.drawNode(node, isHovered, time);
+      ctx.restore();
     });
-
-    onNodeHover(nearNode);
-    return nearNode;
   }
 
-  drawPlayerShip(playerPos: PlayerPosition) {
-    const pX = playerPos.x;
-    const pY = playerPos.y;
-    const angle = playerPos.angle;
+  public drawPlayer(player: PlayerPosition) {
+    const ctx = this.ctx;
+    ctx.save();
+    ctx.translate(player.x, player.y);
+    ctx.rotate(player.angle);
 
-    this.ctx.save();
-    this.ctx.translate(pX, pY);
-    this.ctx.rotate(angle);
-
-    // Thrust effect
-    if (Math.abs(playerPos.vx) > 0.2 || Math.abs(playerPos.vy) > 0.2) {
-      this.ctx.beginPath();
-      this.ctx.moveTo(-14, 0);
-      this.ctx.lineTo(-24 + Math.random() * 6, -5);
-      this.ctx.lineTo(-24 + Math.random() * 6, 5);
-      this.ctx.closePath();
-      this.ctx.fillStyle = "#f43f5e";
-      this.ctx.shadowColor = "#f43f5e";
-      this.ctx.shadowBlur = 15;
-      this.ctx.fill();
-      this.ctx.shadowBlur = 0;
+    if (player.isThrusting) {
+      ctx.beginPath();
+      ctx.moveTo(-16, -5);
+      ctx.lineTo(-28 - Math.random() * 8, 0);
+      ctx.lineTo(-16, 5);
+      ctx.closePath();
+      ctx.fillStyle = "#ff0055";
+      ctx.shadowColor = "#ff0055";
+      ctx.shadowBlur = 14;
+      ctx.fill();
     }
 
-    // Ship body
-    this.ctx.beginPath();
-    this.ctx.moveTo(16, 0);
-    this.ctx.lineTo(-12, -11);
-    this.ctx.lineTo(-6, 0);
-    this.ctx.lineTo(-12, 11);
-    this.ctx.closePath();
-    this.ctx.fillStyle = "#22d3ee";
-    this.ctx.shadowColor = "#22d3ee";
-    this.ctx.shadowBlur = 20;
-    this.ctx.fill();
-    this.ctx.strokeStyle = "#ffffff";
-    this.ctx.lineWidth = 1.5;
-    this.ctx.stroke();
-    this.ctx.shadowBlur = 0;
+    ctx.beginPath();
+    ctx.moveTo(22, 0);
+    ctx.lineTo(-14, -16);
+    ctx.lineTo(-8, -6);
+    ctx.lineTo(-16, -4);
+    ctx.lineTo(-16, 4);
+    ctx.lineTo(-8, 6);
+    ctx.lineTo(-14, 16);
+    ctx.closePath();
 
-    this.ctx.restore();
+    ctx.fillStyle = "#0f172a";
+    ctx.strokeStyle = "#00f3ff";
+    ctx.lineWidth = 2;
+    ctx.shadowColor = "#00f3ff";
+    ctx.shadowBlur = 12;
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.ellipse(4, 0, 7, 3.5, 0, 0, Math.PI * 2);
+    ctx.fillStyle = "#00f3ff";
+    ctx.fill();
+
+    ctx.restore();
   }
 
-  drawMinimap(nodes: GameNode[], playerPos: PlayerPosition) {
-    const miniSize = GAME_CONFIG.minimap.size;
-    const miniX = this.width - miniSize - GAME_CONFIG.minimap.offsetX;
-    const miniY = GAME_CONFIG.minimap.offsetY;
+  public drawMeshParticles(particles: Particle[]) {
+    const ctx = this.ctx;
+    ctx.save();
 
-    // Background
-    const gradient = this.ctx.createLinearGradient(
-      miniX,
-      miniY,
-      miniX,
-      miniY + miniSize
-    );
-    gradient.addColorStop(0, "rgba(5, 5, 8, 0.9)");
-    gradient.addColorStop(1, "rgba(5, 5, 8, 0.7)");
-    this.ctx.fillStyle = gradient;
-    this.ctx.fillRect(miniX, miniY, miniSize, miniSize);
+    particles.forEach((p) => {
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rotation);
+      ctx.strokeStyle = p.color;
+      ctx.fillStyle = p.color;
+      ctx.globalAlpha = p.alpha;
+      ctx.lineWidth = 1.2;
+      ctx.shadowColor = p.color;
+      ctx.shadowBlur = 8;
 
-    // Border
-    this.ctx.strokeStyle = "#22d3ee88";
-    this.ctx.lineWidth = 1.5;
-    this.ctx.shadowColor = "#22d3ee";
-    this.ctx.shadowBlur = 8;
-    this.ctx.strokeRect(miniX, miniY, miniSize, miniSize);
-    this.ctx.shadowBlur = 0;
-
-    // Nodes
-    nodes.forEach((n) => {
-      const mx = miniX + (n.x / MAP_SIZE.width) * miniSize;
-      const my = miniY + (n.y / MAP_SIZE.height) * miniSize;
-      this.ctx.fillStyle = n.color;
-      this.ctx.beginPath();
-      this.ctx.arc(mx, my, 3, 0, Math.PI * 2);
-      this.ctx.fill();
+      ctx.beginPath();
+      p.vertices.forEach((v, idx) => {
+        const vx = v.x * p.size;
+        const vy = v.y * p.size;
+        if (idx === 0) ctx.moveTo(vx, vy);
+        else ctx.lineTo(vx, vy);
+      });
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
     });
 
-    // Player marker
-    const pmx = miniX + (playerPos.x / MAP_SIZE.width) * miniSize;
-    const pmy = miniY + (playerPos.y / MAP_SIZE.height) * miniSize;
-    this.ctx.fillStyle = "#ffffff";
-    this.ctx.shadowColor = "#22d3ee";
-    this.ctx.shadowBlur = 8;
-    this.ctx.beginPath();
-    this.ctx.arc(pmx, pmy, 3.5, 0, Math.PI * 2);
-    this.ctx.fill();
-    this.ctx.shadowBlur = 0;
-
-    // Crosshair
-    this.ctx.strokeStyle = "#22d3ee44";
-    this.ctx.lineWidth = 1;
-    this.ctx.beginPath();
-    this.ctx.moveTo(miniX + miniSize / 2 - 2, miniY + miniSize / 2);
-    this.ctx.lineTo(miniX + miniSize / 2 + 2, miniY + miniSize / 2);
-    this.ctx.moveTo(miniX + miniSize / 2, miniY + miniSize / 2 - 2);
-    this.ctx.lineTo(miniX + miniSize / 2, miniY + miniSize / 2 + 2);
-    this.ctx.stroke();
+    ctx.restore();
   }
 
-  setupCamera(playerPos: PlayerPosition, cameraPos: CameraPosition) {
-    this.ctx.save();
-    this.ctx.translate(this.width / 2, this.height / 2);
-    this.ctx.scale(GAME_CONFIG.camera.zoom, GAME_CONFIG.camera.zoom);
-    this.ctx.translate(-cameraPos.x, -cameraPos.y);
+  public drawLasers(lasers: Laser[]) {
+    const ctx = this.ctx;
+    ctx.save();
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = "#ff0055";
+    ctx.shadowColor = "#ff0055";
+    ctx.shadowBlur = 12;
+
+    lasers.forEach((l) => {
+      ctx.beginPath();
+      ctx.moveTo(l.x, l.y);
+      ctx.lineTo(l.x - l.vx * 1.4, l.y - l.vy * 1.4);
+      ctx.stroke();
+    });
+    ctx.restore();
   }
 
-  restoreCamera() {
-    this.ctx.restore();
+  // Render asteroids using their distinct color
+  public drawAsteroids(asteroids: Asteroid[]) {
+    const ctx = this.ctx;
+    ctx.save();
+
+    asteroids.forEach((a) => {
+      ctx.save();
+      ctx.translate(a.x, a.y);
+      ctx.rotate(a.rotation);
+      ctx.strokeStyle = a.color;
+      ctx.fillStyle = `${a.color}22`;
+      ctx.lineWidth = 2;
+      ctx.shadowColor = a.color;
+      ctx.shadowBlur = 10;
+
+      ctx.beginPath();
+      a.vertices.forEach((v, i) => {
+        if (i === 0) ctx.moveTo(v.x, v.y);
+        else ctx.lineTo(v.x, v.y);
+      });
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+    });
+    ctx.restore();
   }
 
-  drawCRTEffect() {
-    this.ctx.fillStyle = "rgba(0, 0, 0, 0.25)";
-    this.ctx.fillRect(0, 0, this.width, this.height);
+  // Dynamic Minimap Positioning
+  public drawUIOverlay(nodes: GameNode[], player: PlayerPosition) {
+    const ctx = this.ctx;
+    ctx.save();
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.scale(this.dpr, this.dpr);
+
+    const { w: viewW } = this.getViewBounds();
+    const size = GAME_CONFIG.minimap.size;
+    const x = viewW - size - GAME_CONFIG.minimap.offsetX;
+    const y = GAME_CONFIG.minimap.offsetY;
+
+    ctx.fillStyle = "rgba(6, 7, 10, 0.88)";
+    ctx.strokeStyle = "rgba(0, 243, 255, 0.35)";
+    ctx.lineWidth = 1.5;
+    ctx.fillRect(x, y, size, size);
+    ctx.strokeRect(x, y, size, size);
+
+    nodes.forEach((n) => {
+      const mx = x + (n.x / MAP_SIZE.width) * size;
+      const my = y + (n.y / MAP_SIZE.height) * size;
+      ctx.fillStyle = n.color;
+      ctx.beginPath();
+      ctx.arc(mx, my, 3, 0, Math.PI * 2);
+      ctx.fill();
+    });
+
+    const px = x + (player.x / MAP_SIZE.width) * size;
+    const py = y + (player.y / MAP_SIZE.height) * size;
+    ctx.fillStyle = "#ffffff";
+    ctx.beginPath();
+    ctx.arc(px, py, 3.5, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.restore();
+  }
+
+  // Optimized CRT Overlay (No Stuttering)
+  public drawCRTEffect() {
+    const ctx = this.ctx;
+    ctx.save();
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.scale(this.dpr, this.dpr);
+
+    const { w, h } = this.getViewBounds();
+
+    if (this.scanlinePattern) {
+      ctx.fillStyle = this.scanlinePattern;
+      ctx.fillRect(0, 0, w, h);
+    }
+
+    const vignette = ctx.createRadialGradient(
+      w / 2,
+      h / 2,
+      Math.max(w, h) * 0.4,
+      w / 2,
+      h / 2,
+      Math.max(w, h) * 0.75
+    );
+    vignette.addColorStop(0, "rgba(0,0,0,0)");
+    vignette.addColorStop(1, "rgba(0,0,0,0.65)");
+
+    ctx.fillStyle = vignette;
+    ctx.fillRect(0, 0, w, h);
+
+    ctx.restore();
   }
 }

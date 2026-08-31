@@ -1,81 +1,95 @@
-// lib/game-arena/physics.ts
-
-import { PlayerPosition, MAP_SIZE, GAME_CONFIG } from "./types";
+import { PlayerPosition, CameraPosition, MAP_SIZE, GAME_CONFIG } from "./types";
 
 export class GamePhysics {
-  private keysPressed: { [key: string]: boolean } = {};
-  private touchMovement = { dx: 0, dy: 0 };
+  private keys: Record<string, boolean> = {};
+  private touchMoveX: number = 0;
+  private touchMoveY: number = 0;
 
-  setKeyPressed(key: string, pressed: boolean) {
-    this.keysPressed[key.toLowerCase()] = pressed;
+  public setKeyPressed(key: string, pressed: boolean) {
+    this.keys[key.toLowerCase()] = pressed;
   }
 
-  setTouchMovement(dx: number, dy: number) {
-    this.touchMovement.dx = dx;
-    this.touchMovement.dy = dy;
+  public setTouchDirection(moveX: number, moveY: number) {
+    this.touchMoveX = moveX;
+    this.touchMoveY = moveY;
   }
 
-  getTouchMovement() {
-    return this.touchMovement;
-  }
+  public updatePlayerPhysics(player: PlayerPosition) {
+    const accel = 0.65;
+    const friction = 0.93;
 
-  updatePlayerPhysics(playerPos: PlayerPosition, boostMultiplier: number = 1.0) {
-    let inputX = 0;
-    let inputY = 0;
+    let moveX = 0;
+    let moveY = 0;
 
-    // Keyboard input
-    if (this.keysPressed["w"] || this.keysPressed["arrowup"]) inputY -= 1;
-    if (this.keysPressed["s"] || this.keysPressed["arrowdown"]) inputY += 1;
-    if (this.keysPressed["a"] || this.keysPressed["arrowleft"]) inputX -= 1;
-    if (this.keysPressed["d"] || this.keysPressed["arrowright"]) inputX += 1;
+    if (this.keys["w"] || this.keys["arrowup"]) moveY -= 1;
+    if (this.keys["s"] || this.keys["arrowdown"]) moveY += 1;
+    if (this.keys["a"] || this.keys["arrowleft"]) moveX -= 1;
+    if (this.keys["d"] || this.keys["arrowright"]) moveX += 1;
 
-    // Touch input
-    inputX += this.touchMovement.dx;
-    inputY += this.touchMovement.dy;
-
-    // Normalize diagonal movement
-    if (inputX !== 0 && inputY !== 0) {
-      inputX *= 0.7071;
-      inputY *= 0.7071;
+    if (this.touchMoveX !== 0 || this.touchMoveY !== 0) {
+      moveX = this.touchMoveX;
+      moveY = this.touchMoveY;
     }
 
-    // Apply physics with boost scaling
-    const accel = GAME_CONFIG.physics.acceleration * boostMultiplier;
-    const friction = GAME_CONFIG.physics.friction;
-
-    playerPos.vx = (playerPos.vx + inputX * accel) * friction;
-    playerPos.vy = (playerPos.vy + inputY * accel) * friction;
-
-    // Clamp velocity with boost scaling
-    const maxVel = GAME_CONFIG.physics.maxVelocity * boostMultiplier;
-    const velMagnitude = Math.hypot(playerPos.vx, playerPos.vy);
-    if (velMagnitude > maxVel) {
-      playerPos.vx = (playerPos.vx / velMagnitude) * maxVel;
-      playerPos.vy = (playerPos.vy / velMagnitude) * maxVel;
+    if (moveX !== 0 && moveY !== 0) {
+      const len = Math.hypot(moveX, moveY);
+      moveX /= len;
+      moveY /= len;
     }
 
-    // Update position with boundaries
-    playerPos.x = Math.max(
-      50,
-      Math.min(MAP_SIZE.width - 50, playerPos.x + playerPos.vx)
-    );
-    playerPos.y = Math.max(
-      50,
-      Math.min(MAP_SIZE.height - 50, playerPos.y + playerPos.vy)
-    );
+    player.vx += moveX * accel;
+    player.vy += moveY * accel;
 
-    // Update angle based on velocity
-    if (Math.abs(playerPos.vx) > 0.1 || Math.abs(playerPos.vy) > 0.1) {
-      playerPos.angle = Math.atan2(playerPos.vy, playerPos.vx);
+    player.vx *= friction;
+    player.vy *= friction;
+
+    player.x += player.vx;
+    player.y += player.vy;
+
+    const speed = Math.hypot(player.vx, player.vy);
+    if (speed > 0.3) {
+      const targetAngle = Math.atan2(player.vy, player.vx);
+      let diff = targetAngle - player.angle;
+      while (diff < -Math.PI) diff += Math.PI * 2;
+      while (diff > Math.PI) diff -= Math.PI * 2;
+      player.angle += diff * 0.22;
     }
+
+    player.isThrusting = speed > 0.5;
+
+    // Hard boundary clamping for ship in world
+    player.x = Math.max(30, Math.min(MAP_SIZE.width - 30, player.x));
+    player.y = Math.max(30, Math.min(MAP_SIZE.height - 30, player.y));
   }
 
-  updateCamera(
-    playerPos: PlayerPosition,
-    cameraPos: { x: number; y: number }
+  // Camera clamping prevents camera from showing black void outside map
+  public updateCamera(
+    player: PlayerPosition,
+    camera: CameraPosition,
+    viewWidth: number,
+    viewHeight: number
   ) {
-    const smoothing = GAME_CONFIG.camera.smoothing;
-    cameraPos.x += (playerPos.x - cameraPos.x) * smoothing;
-    cameraPos.y += (playerPos.y - cameraPos.y) * smoothing;
+    camera.x += (player.x - camera.x) * GAME_CONFIG.camera.lerp;
+    camera.y += (player.y - camera.y) * GAME_CONFIG.camera.lerp;
+
+    const halfW = viewWidth / 2;
+    const halfH = viewHeight / 2;
+
+    if (MAP_SIZE.width > viewWidth) {
+      camera.x = Math.max(halfW, Math.min(MAP_SIZE.width - halfW, camera.x));
+    } else {
+      camera.x = MAP_SIZE.width / 2;
+    }
+
+    if (MAP_SIZE.height > viewHeight) {
+      camera.y = Math.max(halfH, Math.min(MAP_SIZE.height - halfH, camera.y));
+    } else {
+      camera.y = MAP_SIZE.height / 2;
+    }
+
+    if (camera.shake > 0) {
+      camera.shake *= 0.88;
+      if (camera.shake < 0.1) camera.shake = 0;
+    }
   }
 }

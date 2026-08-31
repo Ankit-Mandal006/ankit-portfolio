@@ -6,30 +6,29 @@ import {
   Gamepad2,
   X,
   ExternalLink,
-  Volume2,
-  VolumeX,
   Zap,
-  Globe,
-  Sparkles,
-  ChevronUp,
-  ChevronDown,
-  ChevronLeft,
-  ChevronRight,
-  Compass,
+  Trophy,
+  Crosshair,
+  ArrowUp,
+  ArrowDown,
+  ArrowLeft,
+  ArrowRight,
 } from "lucide-react";
 
 import { GameRenderer } from "@/lib/game-arena/renderer";
 import { GamePhysics } from "@/lib/game-arena/physics";
-import { GameAudio } from "@/lib/game-arena/audio";
 import {
   type Project,
   type GameNode,
   type PlayerPosition,
   type CameraPosition,
   type Particle,
+  type Asteroid,
+  type Laser,
+  type Star,
   MAP_SIZE,
+  ASTEROID_COLORS,
   NODE_COLORS,
-  GAME_CONFIG,
 } from "@/lib/game-arena/types";
 
 interface GameArenaProps {
@@ -38,119 +37,194 @@ interface GameArenaProps {
 }
 
 export default function GameArena({ isOpen, onClose }: GameArenaProps) {
-  // Data state
-  const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeNode, setActiveNode] = useState<GameNode | null>(null);
-  const [soundEnabled, setSoundEnabled] = useState(true);
+  const [score, setScore] = useState(0);
 
-  // Refs
+  const scoreRef = useRef(0);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const rendererRef = useRef<GameRenderer | null>(null);
   const physicsRef = useRef(new GamePhysics());
-  const audioRef = useRef(new GameAudio(true));
-  const nodesRef = useRef<GameNode[]>([]);
-  const particlesRef = useRef<Particle[]>([]);
 
-  // Game state refs
+  const nodesRef = useRef<GameNode[]>([]);
+  const starsRef = useRef<Star[]>([]);
+  const particlesRef = useRef<Particle[]>([]);
+  const asteroidsRef = useRef<Asteroid[]>([]);
+  const lasersRef = useRef<Laser[]>([]);
+
   const playerPosRef = useRef<PlayerPosition>({
     x: MAP_SIZE.width / 2,
     y: MAP_SIZE.height / 2,
     vx: 0,
     vy: 0,
-    angle: 0,
+    angle: -Math.PI / 2,
   });
 
   const cameraPosRef = useRef<CameraPosition>({
     x: MAP_SIZE.width / 2,
     y: MAP_SIZE.height / 2,
+    shake: 0,
   });
 
   const activeNodeIdRef = useRef<string | null>(null);
-  const lastHoveredNodeRef = useRef<string | null>(null);
+  const lastShotTimeRef = useRef<number>(0);
 
-  // ============ Data Loading ============
+  const addScore = (pts: number) => {
+    scoreRef.current += pts;
+    setScore(scoreRef.current);
+  };
+
+  const generateStars = (count = 260) => {
+    const stars: Star[] = [];
+    for (let i = 0; i < count; i++) {
+      stars.push({
+        x: Math.random() * MAP_SIZE.width,
+        y: Math.random() * MAP_SIZE.height,
+        size: Math.random() * 1.8 + 0.6,
+        alpha: Math.random(),
+        pulseSpeed: Math.random() * 2 + 1,
+      });
+    }
+    starsRef.current = stars;
+  };
+
+  const spawnAsteroids = (count: number) => {
+    const list: Asteroid[] = [];
+    for (let i = 0; i < count; i++) {
+      const radius = Math.random() * 22 + 18;
+      const vertexCount = Math.floor(Math.random() * 4) + 7;
+      const vertices: { x: number; y: number }[] = [];
+
+      for (let j = 0; j < vertexCount; j++) {
+        const angle = (j / vertexCount) * Math.PI * 2;
+        const r = radius * (0.75 + Math.random() * 0.45);
+        vertices.push({ x: Math.cos(angle) * r, y: Math.sin(angle) * r });
+      }
+
+      list.push({
+        id: Math.random().toString(36).substring(2, 9),
+        x: Math.random() * MAP_SIZE.width,
+        y: Math.random() * MAP_SIZE.height,
+        radius,
+        vx: (Math.random() - 0.5) * 2.2,
+        vy: (Math.random() - 0.5) * 2.2,
+        points: Math.round(radius * 10),
+        color: ASTEROID_COLORS[Math.floor(Math.random() * ASTEROID_COLORS.length)],
+        vertices,
+        rotation: Math.random() * Math.PI * 2,
+        vRot: (Math.random() - 0.5) * 0.025,
+      });
+    }
+    asteroidsRef.current = [...asteroidsRef.current, ...list];
+  };
+
+  // Blast particles inherit exact asteroid color
+  const createMeshExplosion = (
+    x: number,
+    y: number,
+    color: string,
+    count = 22
+  ) => {
+    for (let i = 0; i < count; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = Math.random() * 7 + 2;
+
+      const shardVertices = [
+        { x: 0, y: -1.2 },
+        { x: 0.8, y: 0.4 },
+        { x: 0, y: 1.2 },
+        { x: -0.8, y: 0.2 },
+      ];
+
+      particlesRef.current.push({
+        x,
+        y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        size: Math.random() * 4 + 2,
+        life: 0,
+        maxLife: Math.random() * 25 + 15,
+        color,
+        alpha: 1,
+        rotation: Math.random() * Math.PI * 2,
+        vRot: (Math.random() - 0.5) * 0.2,
+        vertices: shardVertices,
+      });
+    }
+  };
+
+  // Fire laser either towards explicit mouse coordinates or ship vector
+  const fireLaser = (targetWorldX?: number, targetWorldY?: number) => {
+    const now = Date.now();
+    if (now - lastShotTimeRef.current < 130) return;
+    lastShotTimeRef.current = now;
+
+    const p = playerPosRef.current;
+    let angle = p.angle;
+
+    if (targetWorldX !== undefined && targetWorldY !== undefined) {
+      angle = Math.atan2(targetWorldY - p.y, targetWorldX - p.x);
+      p.angle = angle; // Rotate ship to mouse pointer
+    }
+
+    lasersRef.current.push({
+      id: Math.random().toString(),
+      x: p.x + Math.cos(angle) * 24,
+      y: p.y + Math.sin(angle) * 24,
+      vx: Math.cos(angle) * 20,
+      vy: Math.sin(angle) * 20,
+      life: 0,
+      maxLife: 55,
+    });
+  };
+
   useEffect(() => {
     if (!isOpen) return;
 
+    scoreRef.current = 0;
+    setScore(0);
+    generateStars();
+
     let isMounted = true;
     const loadProjects = async () => {
-      setLoading(true);
       try {
         const res = await fetch("/api/projects");
-        if (res.ok) {
-          const data = await res.json();
-          if (isMounted && Array.isArray(data) && data.length > 0) {
-            setProjects(data);
-            setLoading(false);
-            return;
-          }
-        }
-      } catch (error) {
-        console.error("Failed to load projects:", error);
-      }
+        const data: Project[] = res.ok ? await res.json() : [];
 
-      if (isMounted) {
-        setLoading(false);
+        if (isMounted) {
+          const padding = 350;
+          nodesRef.current = data.map((proj, idx) => ({
+            id: proj.slug,
+            slug: proj.slug,
+            title: proj.title,
+            category: proj.engine || "System",
+            x: Math.random() * (MAP_SIZE.width - padding * 2) + padding,
+            y: Math.random() * (MAP_SIZE.height - padding * 2) + padding,
+            color: NODE_COLORS[idx % NODE_COLORS.length],
+            desc: proj.tagline || proj.description || "",
+            tags: proj.technologies || [],
+            raw: proj,
+            radius: Math.random() * 18 + 28,
+            hasRing: Math.random() > 0.4,
+            ringAngle: (Math.random() - 0.5) * 0.8,
+            ringColor: NODE_COLORS[(idx + 2) % NODE_COLORS.length],
+          }));
+
+          spawnAsteroids(22);
+          setLoading(false);
+        }
+      } catch {
+        if (isMounted) setLoading(false);
       }
     };
 
     loadProjects();
-
     return () => {
       isMounted = false;
     };
   }, [isOpen]);
 
-  // ============ Node & Particle Initialization ============
-  useEffect(() => {
-    if (projects.length === 0) return;
-
-    const centerX = MAP_SIZE.width / 2;
-    const centerY = MAP_SIZE.height / 2;
-    const radius = Math.min(MAP_SIZE.width, MAP_SIZE.height) * 0.32;
-
-    const nodes: GameNode[] = projects.map((project, index) => {
-      const angle = (index / projects.length) * Math.PI * 2 - Math.PI / 2;
-      const x = Math.round(centerX + Math.cos(angle) * radius);
-      const y = Math.round(centerY + Math.sin(angle) * radius);
-      const color = NODE_COLORS[index % NODE_COLORS.length];
-
-      return {
-        id: project.slug,
-        slug: project.slug,
-        title: project.title,
-        category: project.engine || "Game Systems",
-        x,
-        y,
-        color,
-        desc: project.tagline || project.description || "",
-        tags: project.technologies || ["Unity", "C#"],
-        raw: project,
-      };
-    });
-
-    nodesRef.current = nodes;
-
-    // Initialize particles matching updated Particle interface
-    const particles: Particle[] = [];
-    for (let i = 0; i < GAME_CONFIG.particles.count; i++) {
-      particles.push({
-        x: Math.random() * MAP_SIZE.width,
-        y: Math.random() * MAP_SIZE.height,
-        vx: 0,
-        vy: -(Math.random() * 0.3 + 0.1),
-        size: Math.random() * 2 + 1,
-        life: 0,
-        maxLife: Infinity,
-        color: `rgba(34, 211, 238, ${Math.random() * 0.6 + 0.2})`,
-      });
-    }
-    particlesRef.current = particles;
-  }, [projects]);
-
-  // ============ Canvas Setup ============
   useEffect(() => {
     if (!isOpen) return;
 
@@ -158,426 +232,283 @@ export default function GameArena({ isOpen, onClose }: GameArenaProps) {
     const container = containerRef.current;
     if (!canvas || !container) return;
 
+    rendererRef.current = new GameRenderer(canvas);
+
     const handleResize = () => {
       const rect = container.getBoundingClientRect();
       const dpr = window.devicePixelRatio || 1;
       canvas.width = rect.width * dpr;
       canvas.height = rect.height * dpr;
-
-      if (rendererRef.current) {
-        rendererRef.current.setCanvasSize(canvas.width, canvas.height);
-      }
+      rendererRef.current?.resize(canvas.width, canvas.height, dpr);
     };
 
-    const resizeObserver = new ResizeObserver(() => handleResize());
-    resizeObserver.observe(container);
     handleResize();
+    const observer = new ResizeObserver(handleResize);
+    observer.observe(container);
 
-    return () => resizeObserver.disconnect();
-  }, [isOpen]);
+    let frameId: number;
 
-  // ============ Audio Management ============
-  useEffect(() => {
-    audioRef.current.setEnabled(soundEnabled);
-  }, [soundEnabled]);
-
-  // ============ Game Loop ============
-  useEffect(() => {
-    if (!isOpen) return;
-
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    // Initialize renderer
-    rendererRef.current = new GameRenderer(canvas);
-
-    let animationFrameId: number;
-
-    // ---- Input Handlers ----
     const handleKeyDown = (e: KeyboardEvent) => {
-      const key = e.key.toLowerCase();
-      physicsRef.current.setKeyPressed(key, true);
-
+      physicsRef.current.setKeyPressed(e.key, true);
+      if (e.code === "Space") {
+        e.preventDefault();
+        fireLaser();
+      }
       if (e.key === "Escape") onClose();
-
-      if (key === "e" && activeNodeIdRef.current) {
-        audioRef.current.playSelect();
-        window.open(
-          `/projects/${activeNodeIdRef.current}`,
-          "_blank",
-          "noopener,noreferrer"
-        );
+      if (e.key.toLowerCase() === "e" && activeNodeIdRef.current) {
+        window.open(`/projects/${activeNodeIdRef.current}`, "_blank");
       }
     };
 
     const handleKeyUp = (e: KeyboardEvent) => {
-      physicsRef.current.setKeyPressed(e.key.toLowerCase(), false);
+      physicsRef.current.setKeyPressed(e.key, false);
+    };
+
+    // Mouse click shooting towards cursor position
+    const handlePointerDown = (e: MouseEvent) => {
+      if ((e.target as HTMLElement).tagName !== "CANVAS") return;
+
+      const rect = canvas.getBoundingClientRect();
+      const mouseCanvasX = e.clientX - rect.left;
+      const mouseCanvasY = e.clientY - rect.top;
+
+      const renderer = rendererRef.current;
+      if (!renderer) return;
+
+      const { w: viewW, h: viewH } = renderer.getViewBounds();
+      const camera = cameraPosRef.current;
+
+      const worldX = camera.x + (mouseCanvasX - viewW / 2);
+      const worldY = camera.y + (mouseCanvasY - viewH / 2);
+
+      fireLaser(worldX, worldY);
     };
 
     window.addEventListener("keydown", handleKeyDown);
     window.addEventListener("keyup", handleKeyUp);
+    window.addEventListener("mousedown", handlePointerDown);
 
-    // ---- Render Loop ----
-    const render = () => {
-      if (!rendererRef.current) return;
+    const loop = () => {
+      const renderer = rendererRef.current;
+      const physics = physicsRef.current;
+      const player = playerPosRef.current;
+      const camera = cameraPosRef.current;
 
-      // Update physics
-      physicsRef.current.updatePlayerPhysics(playerPosRef.current);
-      physicsRef.current.updateCamera(playerPosRef.current, cameraPosRef.current);
+      if (renderer) {
+        const { w: viewW, h: viewH } = renderer.getViewBounds();
 
-      // Update particles
-      particlesRef.current.forEach((p) => {
-        p.y += p.vy;
-        if (p.y < 0) p.y = MAP_SIZE.height;
-      });
+        physics.updatePlayerPhysics(player);
+        physics.updateCamera(player, camera, viewW, viewH);
 
-      // Clear and render
-      rendererRef.current.clear();
-      rendererRef.current.setupCamera(
-        playerPosRef.current,
-        cameraPosRef.current
-      );
+        lasersRef.current.forEach((l) => {
+          l.x += l.vx;
+          l.y += l.vy;
+          l.life++;
+        });
+        lasersRef.current = lasersRef.current.filter((l) => l.life < l.maxLife);
 
-      // Draw world elements
-      rendererRef.current.drawArenaFrame();
-      rendererRef.current.drawGrid();
-      rendererRef.current.drawParticles(particlesRef.current);
-      rendererRef.current.drawNodeConnections(nodesRef.current);
+        asteroidsRef.current.forEach((a) => {
+          a.x += a.vx;
+          a.y += a.vy;
+          a.rotation += a.vRot;
 
-      // Draw nodes and handle hover
-      rendererRef.current.drawNodes(
-        nodesRef.current,
-        playerPosRef.current,
-        (node) => {
-          const nextNodeId = node?.id || null;
-          if (activeNodeIdRef.current !== nextNodeId) {
-            activeNodeIdRef.current = nextNodeId;
-            setActiveNode(node);
+          if (a.x < 0) a.x = MAP_SIZE.width;
+          if (a.x > MAP_SIZE.width) a.x = 0;
+          if (a.y < 0) a.y = MAP_SIZE.height;
+          if (a.y > MAP_SIZE.height) a.y = 0;
+        });
+
+        particlesRef.current.forEach((p) => {
+          p.x += p.vx;
+          p.y += p.vy;
+          p.rotation += p.vRot;
+          p.life++;
+          p.alpha = Math.max(0, 1 - p.life / p.maxLife);
+        });
+        particlesRef.current = particlesRef.current.filter((p) => p.life < p.maxLife);
+
+        // Collision: Laser vs Asteroid
+        lasersRef.current.forEach((laser) => {
+          asteroidsRef.current.forEach((ast, index) => {
+            const dist = Math.hypot(laser.x - ast.x, laser.y - ast.y);
+            if (dist < ast.radius) {
+              laser.life = laser.maxLife;
+              createMeshExplosion(ast.x, ast.y, ast.color, 22);
+              camera.shake = Math.min(22, camera.shake + 8);
+              addScore(ast.points);
+              asteroidsRef.current.splice(index, 1);
+            }
+          });
+        });
+
+        // Collision: Player vs Asteroid
+        const playerRadius = 18;
+        asteroidsRef.current.forEach((ast, index) => {
+          const dist = Math.hypot(player.x - ast.x, player.y - ast.y);
+          if (dist < ast.radius + playerRadius) {
+            camera.shake = 25;
+            createMeshExplosion(ast.x, ast.y, ast.color, 28);
+            createMeshExplosion(player.x, player.y, "#00f3ff", 20);
+
+            const bumpAngle = Math.atan2(player.y - ast.y, player.x - ast.x);
+            player.vx += Math.cos(bumpAngle) * 10;
+            player.vy += Math.sin(bumpAngle) * 10;
+
+            addScore(Math.round(ast.points / 2));
+            asteroidsRef.current.splice(index, 1);
           }
+        });
 
-          if (node && lastHoveredNodeRef.current !== node.id) {
-            audioRef.current.playHover();
-            lastHoveredNodeRef.current = node.id;
-          } else if (!node) {
-            lastHoveredNodeRef.current = null;
-          }
+        if (asteroidsRef.current.length < 8) {
+          spawnAsteroids(6);
         }
-      );
 
-      // Draw player
-      rendererRef.current.drawPlayerShip(playerPosRef.current);
+        let nearestId: string | null = null;
+        let nearestNode: GameNode | null = null;
 
-      // Restore camera
-      rendererRef.current.restoreCamera();
+        nodesRef.current.forEach((n) => {
+          const dist = Math.hypot(player.x - n.x, player.y - n.y);
+          if (dist < n.radius + 45) {
+            nearestId = n.id;
+            nearestNode = n;
+          }
+        });
 
-      // Draw UI elements (after camera restore)
-      rendererRef.current.drawMinimap(nodesRef.current, playerPosRef.current);
-      rendererRef.current.drawCRTEffect();
+        if (activeNodeIdRef.current !== nearestId) {
+          activeNodeIdRef.current = nearestId;
+          setActiveNode(nearestNode);
+        }
 
-      animationFrameId = requestAnimationFrame(render);
+        renderer.clear();
+        renderer.beginCameraTransform(camera);
+        renderer.drawStars(starsRef.current);
+        renderer.drawGrid();
+        renderer.drawMeshParticles(particlesRef.current);
+        renderer.drawLasers(lasersRef.current);
+        renderer.drawAsteroids(asteroidsRef.current);
+        renderer.drawNodes(nodesRef.current, activeNodeIdRef.current);
+        renderer.drawPlayer(player);
+        renderer.endCameraTransform();
+
+        renderer.drawUIOverlay(nodesRef.current, player);
+        renderer.drawCRTEffect();
+      }
+
+      frameId = requestAnimationFrame(loop);
     };
 
-    render();
+    loop();
 
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
-      cancelAnimationFrame(animationFrameId);
+      window.removeEventListener("mousedown", handlePointerDown);
+      observer.disconnect();
+      cancelAnimationFrame(frameId);
     };
   }, [isOpen, onClose]);
-
-  // ============ Cleanup ============
-  useEffect(() => {
-    return () => {
-      audioRef.current.cleanup();
-    };
-  }, []);
 
   return (
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          initial={{ opacity: 0, scale: 0.98 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.98 }}
-          transition={{ duration: 0.3 }}
-          className="fixed inset-0 z-50 bg-zinc-950/95 backdrop-blur-xl flex flex-col items-center justify-center p-2 sm:p-4 select-none"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-50 bg-black flex flex-col p-2 sm:p-4 select-none"
         >
-          <div className="relative w-full h-[94vh] bg-zinc-950 border border-cyan-500/40 rounded-xl sm:rounded-2xl overflow-hidden shadow-[0_0_60px_rgba(34,211,238,0.2)] flex flex-col">
-            {/* Header */}
-            <GameArenaHeader
-              soundEnabled={soundEnabled}
-              onSoundToggle={() => setSoundEnabled(!soundEnabled)}
-              onClose={onClose}
-            />
+          <div className="relative flex-1 w-full h-full bg-[#030408] border border-cyan-500/30 rounded-xl overflow-hidden flex flex-col">
+            {/* Header HUD */}
+            <div className="flex justify-between items-center px-4 sm:px-6 py-3 bg-black/80 border-b border-cyan-500/20 text-xs font-mono z-10 shrink-0">
+              <div className="flex items-center gap-2 text-cyan-400">
+                <Gamepad2 className="w-4 h-4" />
+                <span className="hidden sm:inline">ARENA // PLANETARY_EXPLORER</span>
+                <span className="sm:hidden">ARENA</span>
+              </div>
 
-            {/* Canvas Container */}
-            <div
-              ref={containerRef}
-              className="relative flex-1 bg-zinc-950 overflow-hidden flex items-center justify-center min-h-0"
-            >
-              {loading ? (
-                <GameLoadingState />
-              ) : (
-                <>
-                  <canvas
-                    ref={canvasRef}
-                    className="w-full h-full block cursor-crosshair"
-                  />
-                  {/* CRT Effect Overlay */}
-                  <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%)] bg-[length:100%_4px] pointer-events-none opacity-40" />
-                </>
-              )}
+              <div className="flex items-center gap-2 text-amber-400 bg-amber-950/40 border border-amber-500/40 px-3 py-1 rounded-lg">
+                <Trophy className="w-4 h-4 text-amber-400" />
+                <span className="font-bold text-sm tracking-wider">SCORE: {score}</span>
+              </div>
 
-              {/* Inspector Modal */}
-              <GameNodeInspector activeNode={activeNode} />
+              <button onClick={onClose} className="p-1.5 text-zinc-400 hover:text-white">
+                <X className="w-5 h-5" />
+              </button>
             </div>
 
-            {/* Mobile Controls */}
-            <GameMobileControls physics={physicsRef.current} />
+            {/* Viewport */}
+            <div ref={containerRef} className="relative flex-1 w-full h-full overflow-hidden">
+              {loading ? (
+                <div className="absolute inset-0 flex items-center justify-center text-cyan-400 font-mono">
+                  <Zap className="w-6 h-6 animate-bounce mr-2" />
+                  GENERATING PLANETS...
+                </div>
+              ) : (
+                <canvas ref={canvasRef} className="block w-full h-full cursor-crosshair" />
+              )}
+
+              {/* Dynamic Planet Inspection Panel */}
+              {activeNode && (
+                <div className="absolute bottom-4 right-4 max-w-[calc(100vw-2rem)] sm:w-80 bg-black/90 border border-cyan-500/50 p-4 rounded-xl text-white font-mono backdrop-blur-md z-20">
+                  <h4 className="text-base sm:text-lg font-bold text-cyan-400">{activeNode.title}</h4>
+                  <p className="text-xs text-zinc-400 my-2 line-clamp-3">{activeNode.desc}</p>
+                  <a
+                    href={`/projects/${activeNode.slug}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center justify-center gap-2 py-2 bg-cyan-500 text-black font-bold rounded hover:bg-cyan-400 transition-colors text-xs sm:text-sm"
+                  >
+                    INSPECT PLANET <ExternalLink className="w-4 h-4" />
+                  </a>
+                </div>
+              )}
+            </div>
+
+            {/* Mobile Direction & Fire Controls */}
+            <div className="lg:hidden p-3 bg-black/90 border-t border-cyan-500/20 flex justify-between items-center z-10 shrink-0">
+              <div className="grid grid-cols-3 gap-1">
+                <div />
+                <button
+                  onPointerDown={() => physicsRef.current.setTouchDirection(0, -1)}
+                  onPointerUp={() => physicsRef.current.setTouchDirection(0, 0)}
+                  className="w-10 h-10 bg-cyan-500/20 border border-cyan-500/40 rounded flex items-center justify-center text-cyan-400 active:bg-cyan-500/40"
+                >
+                  <ArrowUp className="w-5 h-5" />
+                </button>
+                <div />
+                <button
+                  onPointerDown={() => physicsRef.current.setTouchDirection(-1, 0)}
+                  onPointerUp={() => physicsRef.current.setTouchDirection(0, 0)}
+                  className="w-10 h-10 bg-cyan-500/20 border border-cyan-500/40 rounded flex items-center justify-center text-cyan-400 active:bg-cyan-500/40"
+                >
+                  <ArrowLeft className="w-5 h-5" />
+                </button>
+                <button
+                  onPointerDown={() => physicsRef.current.setTouchDirection(0, 1)}
+                  onPointerUp={() => physicsRef.current.setTouchDirection(0, 0)}
+                  className="w-10 h-10 bg-cyan-500/20 border border-cyan-500/40 rounded flex items-center justify-center text-cyan-400 active:bg-cyan-500/40"
+                >
+                  <ArrowDown className="w-5 h-5" />
+                </button>
+                <button
+                  onPointerDown={() => physicsRef.current.setTouchDirection(1, 0)}
+                  onPointerUp={() => physicsRef.current.setTouchDirection(0, 0)}
+                  className="w-10 h-10 bg-cyan-500/20 border border-cyan-500/40 rounded flex items-center justify-center text-cyan-400 active:bg-cyan-500/40"
+                >
+                  <ArrowRight className="w-5 h-5" />
+                </button>
+              </div>
+
+              <button
+                onClick={() => fireLaser()}
+                className="px-5 h-11 bg-rose-500/20 border border-rose-500/40 rounded flex items-center justify-center text-rose-400 font-mono font-bold active:bg-rose-500/40"
+              >
+                <Crosshair className="w-5 h-5 mr-1" /> FIRE
+              </button>
+            </div>
           </div>
         </motion.div>
       )}
     </AnimatePresence>
-  );
-}
-
-// ============ Subcomponents ============
-
-interface GameArenaHeaderProps {
-  soundEnabled: boolean;
-  onSoundToggle: () => void;
-  onClose: () => void;
-}
-
-function GameArenaHeader({
-  soundEnabled,
-  onSoundToggle,
-  onClose,
-}: GameArenaHeaderProps) {
-  return (
-    <div className="flex items-center justify-between px-4 sm:px-6 py-2.5 sm:py-3 bg-zinc-950/95 border-b border-cyan-500/20 text-xs font-mono z-20 gap-3 sm:gap-4 backdrop-blur-md">
-      <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
-        <div className="p-1.5 rounded-lg bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 flex-shrink-0">
-          <Gamepad2 className="w-4 h-4 animate-pulse" />
-        </div>
-        <div className="min-w-0">
-          <p className="text-cyan-300 font-bold tracking-wider truncate text-[11px] sm:text-sm leading-tight">
-            SYS_ARENA // PORTFOLIO_v5
-          </p>
-          <p className="hidden md:inline text-[9px] text-zinc-500 ml-2">
-            MAP: 2200×1500
-          </p>
-        </div>
-      </div>
-
-      {/* Controls Hint - Hidden on mobile */}
-      <div className="hidden xl:flex items-center gap-3 text-zinc-400 text-[10px] flex-shrink-0">
-        <span className="flex items-center gap-1">
-          <kbd className="px-1 py-0.5 rounded bg-zinc-800/80 border border-zinc-700 text-cyan-300 text-[10px] font-bold">
-            WASD
-          </kbd>
-          <span className="text-zinc-600">/</span>
-          <kbd className="px-1 py-0.5 rounded bg-zinc-800/80 border border-zinc-700 text-cyan-300 text-[10px] font-bold">
-            Arrows
-          </kbd>
-        </span>
-        <span className="flex items-center gap-1">
-          <kbd className="px-1 py-0.5 rounded bg-zinc-800/80 border border-zinc-700 text-cyan-300 text-[10px] font-bold">
-            E
-          </kbd>
-          <span>Inspect</span>
-        </span>
-        <span className="flex items-center gap-1">
-          <kbd className="px-1 py-0.5 rounded bg-zinc-800/80 border border-zinc-700 text-cyan-300 text-[10px] font-bold">
-            ESC
-          </kbd>
-          <span>Exit</span>
-        </span>
-      </div>
-
-      {/* Action Buttons */}
-      <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
-        <button
-          onClick={onSoundToggle}
-          className="p-1.5 sm:p-2 rounded-lg bg-zinc-900/80 hover:bg-zinc-800 text-zinc-400 hover:text-cyan-400 transition-colors border border-zinc-800/60 hover:border-zinc-700"
-          title={soundEnabled ? "Mute audio" : "Unmute audio"}
-          aria-label="Toggle audio"
-        >
-          {soundEnabled ? (
-            <Volume2 className="w-4 h-4" />
-          ) : (
-            <VolumeX className="w-4 h-4" />
-          )}
-        </button>
-
-        <button
-          onClick={onClose}
-          className="flex items-center gap-1 px-2 sm:px-3 py-1.5 rounded-lg bg-zinc-900/80 hover:bg-red-950/30 text-cyan-400 hover:text-red-400 transition-colors border border-cyan-500/20 hover:border-red-500/40 text-xs font-mono font-bold"
-        >
-          <X className="w-4 h-4" />
-          <span className="hidden sm:inline text-[11px]">EXIT</span>
-        </button>
-      </div>
-    </div>
-  );
-}
-
-function GameLoadingState() {
-  return (
-    <div className="flex flex-col items-center gap-4 font-mono text-cyan-400">
-      <Zap className="w-10 h-10 animate-bounce text-cyan-400" />
-      <span className="text-sm uppercase tracking-widest animate-pulse">
-        INITIALIZING SYSTEM...
-      </span>
-      <div className="w-48 h-1 bg-zinc-900 rounded-full overflow-hidden">
-        <div className="h-full bg-gradient-to-r from-cyan-500 via-purple-500 to-cyan-500 animate-pulse"></div>
-      </div>
-    </div>
-  );
-}
-
-interface GameNodeInspectorProps {
-  activeNode: GameNode | null;
-}
-
-function GameNodeInspector({ activeNode }: GameNodeInspectorProps) {
-  return (
-    <AnimatePresence>
-      {activeNode && (
-        <motion.div
-          initial={{ opacity: 0, y: 20, scale: 0.92 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: 10, scale: 0.92 }}
-          transition={{ duration: 0.15 }}
-          className="absolute bottom-5 left-4 right-4 sm:bottom-8 sm:right-8 sm:w-[460px] bg-zinc-950/98 border border-cyan-500/40 p-5 sm:p-7 rounded-lg sm:rounded-2xl backdrop-blur-2xl shadow-[0_0_50px_rgba(34,211,238,0.25)] text-left font-sans z-30"
-        >
-          {/* Category Badge */}
-          <div className="flex items-center justify-between border-b border-zinc-800/50 pb-3 mb-4">
-            <span
-              className="text-[11px] font-mono font-bold uppercase tracking-wider px-3 py-1.5 rounded border"
-              style={{
-                backgroundColor: `${activeNode.color}12`,
-                borderColor: `${activeNode.color}35`,
-                color: activeNode.color,
-              }}
-            >
-              {activeNode.category}
-            </span>
-            <span className="text-[11px] font-mono text-cyan-400 flex items-center gap-1.5 animate-pulse">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>LINKED</span>
-            </span>
-          </div>
-
-          {/* Content */}
-          <h3 className="text-xl sm:text-2xl font-bold text-white mb-2 tracking-tight">
-            {activeNode.title}
-          </h3>
-          <p className="text-sm text-zinc-300 leading-relaxed mb-5">
-            {activeNode.desc}
-          </p>
-
-          {/* Tags */}
-          <div className="flex flex-wrap gap-2 mb-6">
-            {activeNode.tags.slice(0, 5).map((tag) => (
-              <span
-                key={tag}
-                className="px-3 py-1.5 rounded border bg-zinc-900/60 border-zinc-800/80 text-[11px] font-mono text-zinc-300"
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
-
-          {/* Actions */}
-          <div className="flex flex-col gap-2.5">
-            <a
-              href={`/projects/${activeNode.slug}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 w-full py-3 bg-cyan-400 hover:bg-cyan-300 text-zinc-950 text-sm font-bold rounded-lg transition-all duration-200 shadow-[0_0_20px_rgba(34,211,238,0.4)]"
-            >
-              <span>VIEW PROJECT</span>
-              <ExternalLink className="w-4 h-4" />
-            </a>
-
-            {activeNode.raw.itch && (
-              <a
-                href={activeNode.raw.itch}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 py-2.5 bg-zinc-900/80 hover:bg-zinc-800 text-zinc-300 hover:text-cyan-400 border border-zinc-800/60 hover:border-zinc-700 text-sm font-mono rounded-lg transition-colors"
-              >
-                <Globe className="w-4 h-4" />
-                <span>ITCH.IO</span>
-              </a>
-            )}
-          </div>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  );
-}
-
-interface GameMobileControlsProps {
-  physics: InstanceType<typeof GamePhysics>;
-}
-
-function GameMobileControls({ physics }: GameMobileControlsProps) {
-  return (
-    <div className="lg:hidden p-4 sm:p-5 bg-zinc-950/95 border-t border-cyan-500/20 flex justify-between items-center z-20 gap-4 backdrop-blur-sm">
-      <div className="flex items-center gap-2.5 text-cyan-400 text-xs sm:text-sm font-mono flex-shrink-0">
-        <Compass className="w-4 h-4 animate-spin" />
-        <span className="hidden sm:inline text-[12px]">TOUCH_CONTROLS</span>
-      </div>
-
-      <div className="grid grid-cols-3 gap-1.5 w-auto">
-        <div />
-        <button
-          onPointerDown={() => physics.setTouchMovement(0, -1)}
-          onPointerUp={() => physics.setTouchMovement(0, 0)}
-          onPointerLeave={() => physics.setTouchMovement(0, 0)}
-          className="w-12 h-12 bg-zinc-900/80 rounded-lg border border-cyan-500/30 flex items-center justify-center text-cyan-400 active:bg-cyan-500/30 active:border-cyan-500/60 active:shadow-[0_0_15px_rgba(34,211,238,0.4)] transition-all touch-none font-mono"
-          aria-label="Move up"
-        >
-          <ChevronUp className="w-5 h-5" />
-        </button>
-        <div />
-
-        <button
-          onPointerDown={() => physics.setTouchMovement(-1, 0)}
-          onPointerUp={() => physics.setTouchMovement(0, 0)}
-          onPointerLeave={() => physics.setTouchMovement(0, 0)}
-          className="w-12 h-12 bg-zinc-900/80 rounded-lg border border-cyan-500/30 flex items-center justify-center text-cyan-400 active:bg-cyan-500/30 active:border-cyan-500/60 active:shadow-[0_0_15px_rgba(34,211,238,0.4)] transition-all touch-none font-mono"
-          aria-label="Move left"
-        >
-          <ChevronLeft className="w-5 h-5" />
-        </button>
-
-        <button
-          onPointerDown={() => physics.setTouchMovement(0, 1)}
-          onPointerUp={() => physics.setTouchMovement(0, 0)}
-          onPointerLeave={() => physics.setTouchMovement(0, 0)}
-          className="w-12 h-12 bg-zinc-900/80 rounded-lg border border-cyan-500/30 flex items-center justify-center text-cyan-400 active:bg-cyan-500/30 active:border-cyan-500/60 active:shadow-[0_0_15px_rgba(34,211,238,0.4)] transition-all touch-none font-mono"
-          aria-label="Move down"
-        >
-          <ChevronDown className="w-5 h-5" />
-        </button>
-
-        <button
-          onPointerDown={() => physics.setTouchMovement(1, 0)}
-          onPointerUp={() => physics.setTouchMovement(0, 0)}
-          onPointerLeave={() => physics.setTouchMovement(0, 0)}
-          className="w-12 h-12 bg-zinc-900/80 rounded-lg border border-cyan-500/30 flex items-center justify-center text-cyan-400 active:bg-cyan-500/30 active:border-cyan-500/60 active:shadow-[0_0_15px_rgba(34,211,238,0.4)] transition-all touch-none font-mono"
-          aria-label="Move right"
-        >
-          <ChevronRight className="w-5 h-5" />
-        </button>
-      </div>
-    </div>
   );
 }

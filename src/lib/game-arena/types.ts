@@ -1,34 +1,10 @@
-export type Project = {
-  id?: number;
+export interface Project {
   slug: string;
   title: string;
-  tagline?: string;
   description?: string;
+  tagline?: string;
   engine?: string;
-  role?: string;
-  duration?: string;
-  cover?: string;
   technologies?: string[];
-  itch?: string;
-  github?: string;
-  featured?: boolean;
-};
-
-export interface Asteroid {
-  id: string;
-  x: number;
-  y: number;
-  radius: number;
-  vx: number;
-  vy: number;
-}
-
-export interface Particle {
-  x: number;
-  y: number;
-  size: number;
-  alpha: number;
-  speed: number;
 }
 
 export interface GameNode {
@@ -42,6 +18,18 @@ export interface GameNode {
   desc: string;
   tags: string[];
   raw: Project;
+  radius: number;
+  hasRing: boolean;
+  ringAngle: number;
+  ringColor: string;
+}
+
+export interface Star {
+  x: number;
+  y: number;
+  size: number;
+  alpha: number;
+  pulseSpeed: number;
 }
 
 export interface PlayerPosition {
@@ -50,54 +38,78 @@ export interface PlayerPosition {
   vx: number;
   vy: number;
   angle: number;
+  isThrusting?: boolean;
 }
 
 export interface CameraPosition {
   x: number;
   y: number;
+  shake: number;
+}
+
+export interface Particle {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  size: number;
+  life: number;
+  maxLife: number;
+  color: string;
+  alpha: number;
+  rotation: number;
+  vRot: number;
+  vertices: { x: number; y: number }[];
+}
+
+export interface Asteroid {
+  id: string;
+  x: number;
+  y: number;
+  radius: number;
+  vx: number;
+  vy: number;
+  points: number;
+  color: string;
+  vertices: { x: number; y: number }[];
+  rotation: number;
+  vRot: number;
+}
+
+export interface Laser {
+  id: string;
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  life: number;
+  maxLife: number;
 }
 
 export const MAP_SIZE = {
-  width: 2200,
-  height: 1500,
-} as const;
+  width: 3600,
+  height: 2400,
+};
+
+export const ASTEROID_COLORS = [
+  "#a855f7",
+  "#e11d48",
+  "#f59e0b",
+  "#06b6d4",
+  "#84cc16",
+];
 
 export const NODE_COLORS = [
-  "#22d3ee", // cyan
-  "#f43f5e", // rose
-  "#10b981", // emerald
-  "#a855f7", // purple
-  "#eab308", // yellow
-  "#3b82f6", // blue
-  "#f59e0b", // amber
-  "#ec4899", // pink
-] as const;
+  "#00f3ff",
+  "#ff0055",
+  "#a855f7",
+  "#3b82f6",
+  "#10b981",
+  "#f59e0b",
+];
 
 export const GAME_CONFIG = {
-  nodeRadius: {
-    default: 48,
-    hover: 64,
-    interactDistance: 90,
-    connectionDistance: 900,
-  },
-  physics: {
-    acceleration: 0.8,
-    friction: 0.85,
-    maxVelocity: 12,
-  },
-  camera: {
-    smoothing: 0.08,
-    zoom: 0.3,
-  },
-  particles: {
-    count: 1200,
-  },
-  grid: {
-    size: 100,
-  },
-  minimap: {
-    size: 30,
-    offsetX: 5,
-    offsetY: 5,
-  },
-} as const;
+  grid: { size: 120 },
+  camera: { lerp: 0.12 },
+  minimap: { size: 150, offsetX: 20, offsetY: 20 },
+};
