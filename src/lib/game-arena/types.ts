@@ -19,9 +19,13 @@ export interface GameNode {
   tags: string[];
   raw: Project;
   radius: number;
+  gravityRadius: number;
+  orbitRadius: number;
+  mass: number;
   hasRing: boolean;
   ringAngle: number;
   ringColor: string;
+  glitchTimer: number;
 }
 
 export interface Star {
@@ -39,12 +43,18 @@ export interface PlayerPosition {
   vy: number;
   angle: number;
   isThrusting?: boolean;
+  isOrbiting: boolean;
+  orbitNodeId: string | null;
+  orbitAngle: number;
+  orbitRadius: number;
+  orbitSpeed: number;
 }
 
 export interface CameraPosition {
   x: number;
   y: number;
   shake: number;
+  glitchIntensity: number;
 }
 
 export interface Particle {
@@ -60,6 +70,7 @@ export interface Particle {
   rotation: number;
   vRot: number;
   vertices: { x: number; y: number }[];
+  isGlitchShard?: boolean;
 }
 
 export interface Asteroid {
@@ -87,8 +98,8 @@ export interface Laser {
 }
 
 export const MAP_SIZE = {
-  width: 3600,
-  height: 2400,
+  width: 4000,
+  height: 2800,
 };
 
 export const ASTEROID_COLORS = [
@@ -109,7 +120,8 @@ export const NODE_COLORS = [
 ];
 
 export const GAME_CONFIG = {
-  grid: { size: 120 },
+  grid: { size: 100 },
   camera: { lerp: 0.12 },
-  minimap: { size: 150, offsetX: 20, offsetY: 20 },
+  minimap: { size: 160, offsetX: 20, offsetY: 20 },
+  gravityConstant: 1800,
 };
