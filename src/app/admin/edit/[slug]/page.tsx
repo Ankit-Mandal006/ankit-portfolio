@@ -4,11 +4,16 @@ import Link from "next/link";
 import EditProjectForm from "@/components/admin/EditProjectForm";
 import { createClient } from "@supabase/supabase-js";
 
-// Initialize Supabase Admin / Server Client
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+// Prevent Next.js from attempting static page generation during build time
+export const dynamic = "force-dynamic";
+
+// Initialize client safely with fallbacks so module evaluation never throws during build time
+const supabaseUrl =
+  process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder.supabase.co";
+const supabaseKey =
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "placeholder-key";
+
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 /**
  * Helper to fetch all uploaded media files from Supabase storage
