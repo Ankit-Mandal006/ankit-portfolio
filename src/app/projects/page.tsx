@@ -31,6 +31,7 @@ export default async function ProjectsPage() {
             title={project.title}
             description={project.tagline}
             cover={project.cover}
+            coverPosition={project.coverPosition}
             itch={project.itch}
             github={project.github}
             engine={project.engine}

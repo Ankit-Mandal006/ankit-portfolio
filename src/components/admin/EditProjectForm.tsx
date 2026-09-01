@@ -17,6 +17,7 @@ type Project = {
   role?: string;
   duration?: string;
   cover?: string;
+  coverPosition?: string;
   screenshots?: string[];
   trailer?: string;
   itch?: string;
@@ -26,6 +27,7 @@ type Project = {
 
 type Props = {
   project: Project;
+  existingMedia?: string[];
   updateAction: (formData: FormData) => Promise<void>;
 };
 
@@ -39,7 +41,11 @@ function toTopicInputs(topics?: ProjectTopic[]): TopicInput[] | undefined {
   }));
 }
 
-export default function EditProjectForm({ project, updateAction }: Props) {
+export default function EditProjectForm({
+  project,
+  existingMedia = [],
+  updateAction,
+}: Props) {
   // Track open/closed state for each collapsible section
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
     basic: true,
@@ -60,7 +66,7 @@ export default function EditProjectForm({ project, updateAction }: Props) {
       <input type="hidden" name="currentSlug" value={project.slug} />
 
       {/* ------------------------------------------------------------------ */}
-      {/* SECTION 1: Basic Information                                        */}
+      {/* SECTION 1: Basic Information                                       */}
       {/* ------------------------------------------------------------------ */}
       <div className="rounded-2xl border border-zinc-800 bg-zinc-900/60 overflow-hidden">
         <button
@@ -114,7 +120,7 @@ export default function EditProjectForm({ project, updateAction }: Props) {
       </div>
 
       {/* ------------------------------------------------------------------ */}
-      {/* SECTION 2: Devlog Topics                                            */}
+      {/* SECTION 2: Devlog Topics                                           */}
       {/* ------------------------------------------------------------------ */}
       <div className="rounded-2xl border border-zinc-800 bg-zinc-900/60 overflow-hidden">
         <button
@@ -207,7 +213,7 @@ export default function EditProjectForm({ project, updateAction }: Props) {
       </div>
 
       {/* ------------------------------------------------------------------ */}
-      {/* SECTION 4: Media Assets                                             */}
+      {/* SECTION 4: Media Assets                                            */}
       {/* ------------------------------------------------------------------ */}
       <div className="rounded-2xl border border-zinc-800 bg-zinc-900/60 overflow-hidden">
         <button
@@ -227,14 +233,41 @@ export default function EditProjectForm({ project, updateAction }: Props) {
         {openSections.media && (
           <div className="p-6 border-t border-zinc-800/60 space-y-6">
             <div className="grid md:grid-cols-2 gap-6">
-              <div>
-                <label className="block mb-2 font-semibold text-zinc-400">Cover Image</label>
-                <ImageUploader name="cover" defaultValue={project.cover || ""} />
+              <div className="space-y-4">
+                <div>
+                  <label className="block mb-2 font-semibold text-zinc-400">Cover Image</label>
+                  <ImageUploader 
+                    name="cover" 
+                    defaultValue={project.cover || ""} 
+                    existingMedia={existingMedia}
+                  />
+                </div>
+
+                <div>
+                  <label className="block mb-2 font-semibold text-zinc-400">Cover Focal Point</label>
+                  <select
+                    name="coverPosition"
+                    defaultValue={project.coverPosition || "center"}
+                    className="w-full p-4 rounded-xl bg-zinc-950 border border-zinc-800 text-zinc-300 focus:outline-none focus:border-cyan-400"
+                  >
+                    <option value="center">Center (Default)</option>
+                    <option value="top">Top</option>
+                    <option value="bottom">Bottom</option>
+                    <option value="left">Left</option>
+                    <option value="right">Right</option>
+                    <option value="top left">Top Left</option>
+                    <option value="top right">Top Right</option>
+                  </select>
+                </div>
               </div>
 
               <div>
                 <label className="block mb-2 font-semibold text-zinc-400">Screenshots Gallery</label>
-                <GalleryUploader name="screenshots" defaultValue={project.screenshots || []} />
+                <GalleryUploader 
+                  name="screenshots" 
+                  defaultValue={project.screenshots || []} 
+                  existingMedia={existingMedia}
+                />
               </div>
             </div>
 
@@ -252,7 +285,7 @@ export default function EditProjectForm({ project, updateAction }: Props) {
       </div>
 
       {/* ------------------------------------------------------------------ */}
-      {/* SECTION 5: External Links & Status                                  */}
+      {/* SECTION 5: External Links & Status                                 */}
       {/* ------------------------------------------------------------------ */}
       <div className="rounded-2xl border border-zinc-800 bg-zinc-900/60 overflow-hidden">
         <button

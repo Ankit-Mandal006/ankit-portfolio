@@ -6,6 +6,7 @@ type Props = {
   title: string;
   description: string;
   cover?: string;
+  coverPosition?: string;
   itch?: string;
   github?: string;
   engine?: string;
@@ -17,6 +18,7 @@ export default function ProjectCard({
   title,
   description,
   cover,
+  coverPosition = "center",
   itch,
   github,
   engine = "Unity",
@@ -30,9 +32,10 @@ export default function ProjectCard({
         bg-zinc-950
         border
         border-zinc-800
-        hover:border-cyan-500/50
+        hover:border-cyan-400/80
+        hover:shadow-[0_0_35px_rgba(34,211,238,0.12)]
         transition-all
-        duration-300
+        duration-500
         hud-clip
         flex
         flex-col
@@ -40,8 +43,8 @@ export default function ProjectCard({
         overflow-hidden
       "
     >
-      {/* Tactical Top Accent Line */}
-      <div className="absolute top-0 left-0 right-4 h-[2px] bg-gradient-to-r from-cyan-400 via-teal-300 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20" />
+      {/* Tactical Top Accent Line with Smooth Fade */}
+      <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-cyan-400 via-teal-300 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 z-20" />
 
       {/* IMAGE CONTAINER + HOVER HUD OVERLAY */}
       <div className="relative aspect-[16/9] w-full overflow-hidden border-b border-zinc-800/80 bg-zinc-900">
@@ -56,17 +59,34 @@ export default function ProjectCard({
             fill
             sizes="(max-width: 1024px) 100vw, 25vw"
             priority={false}
+            style={{ objectPosition: coverPosition }}
             className="
               object-cover
-              object-center
               transition-all
-              duration-500
+              duration-700
+              ease-out
               group-hover:scale-105
-              group-hover:brightness-40
+              group-hover:brightness-50
               group-hover:blur-[1px]
             "
           />
         </Link>
+
+        {/* LIGHT CRT TV SCANLINE & RGB EFFECT (Visible on Hover) */}
+        <div
+          className="
+            absolute
+            inset-0
+            z-[5]
+            pointer-events-none
+            opacity-0
+            group-hover:opacity-35
+            transition-opacity
+            duration-500
+            bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.45)_50%),linear-gradient(90deg,rgba(255,0,0,0.03),rgba(0,255,0,0.01),rgba(0,0,255,0.03))]
+            bg-[length:100%_4px,6px_100%]
+          "
+        />
 
         {/* Tactical Corner Badge */}
         <div className="absolute top-3 left-3 z-10 font-mono text-[9px] uppercase tracking-widest text-cyan-400 bg-zinc-950/90 border border-cyan-500/40 px-2 py-0.5 backdrop-blur-md hud-clip-sm pointer-events-none">
@@ -180,7 +200,7 @@ export default function ProjectCard({
                 text-white
                 group-hover:text-cyan-300
                 transition-colors
-                duration-200
+                duration-300
                 line-clamp-1
               "
             >
@@ -194,7 +214,7 @@ export default function ProjectCard({
         </div>
 
         {/* Case Study Link */}
-        <div className="flex items-center justify-between pt-2 border-t border-zinc-900">
+        <div className="flex items-center justify-between pt-2 border-t border-zinc-900 group-hover:border-zinc-800/80 transition-colors duration-300">
           <span className="text-[10px] text-zinc-500 font-mono font-medium">Ankit Mandal</span>
           <Link
             href={`/projects/${slug}`}
@@ -212,7 +232,7 @@ export default function ProjectCard({
             "
           >
             <span>VIEW CASE STUDY</span>
-            <span className="text-cyan-400 transition-transform group-hover:translate-x-1">
+            <span className="text-cyan-400 transition-transform duration-300 group-hover:translate-x-1">
               →
             </span>
           </Link>

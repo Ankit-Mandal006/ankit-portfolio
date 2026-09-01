@@ -7,11 +7,15 @@ import { createClientSide } from "@/lib/supabase";
 type Props = {
   name: string;
   defaultValue?: string[];
+  existingMedia?: string[]; // <-- Add this line
+  onChange?: (urls: string[]) => void;
 };
 
 export default function GalleryUploader({
   name,
   defaultValue = [],
+  existingMedia = [], // <-- Add default fallback if needed
+  onChange,
 }: Props) {
   const [images, setImages] = useState<string[]>(defaultValue);
   const [uploading, setUploading] = useState(false);

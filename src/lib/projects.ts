@@ -23,6 +23,7 @@ export type Project = {
   role: string;
   duration: string;
   cover?: string;
+  coverPosition?: string;
   screenshots?: string[];
   technologies?: string[];
   trailer?: string;
@@ -247,6 +248,7 @@ export const getProject = cache(
 
       return {
         ...(data as Project),
+        coverPosition: data.coverPosition || data.cover_position || "center",
         description: description || data.description || "",
         topics: topics.length > 0 ? topics : undefined,
       };
@@ -268,7 +270,10 @@ export const getProjects = cache(async (): Promise<Project[]> => {
 
     if (error) return [];
 
-    return (data ?? []) as Project[];
+    return (data ?? []).map((item: any) => ({
+      ...item,
+      coverPosition: item.coverPosition || item.cover_position || "center",
+    })) as Project[];
   } catch {
     return [];
   }

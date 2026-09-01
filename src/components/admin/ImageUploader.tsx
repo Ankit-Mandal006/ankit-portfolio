@@ -7,6 +7,8 @@ import { createClientSide } from "@/lib/supabase";
 type Props = {
   name: string;
   defaultValue?: string;
+  existingMedia?: string[]; // <-- Add this line
+  onChange?: (url: string) => void;
 };
 
 export default function ImageUploader({

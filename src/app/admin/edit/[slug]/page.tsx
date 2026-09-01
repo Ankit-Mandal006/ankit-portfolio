@@ -2,6 +2,39 @@ import { getProject } from "@/lib/projects";
 import { updateProject } from "../../actions";
 import Link from "next/link";
 import EditProjectForm from "@/components/admin/EditProjectForm";
+import { createClient } from "@supabase/supabase-js";
+
+// Initialize Supabase Admin / Server Client
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
+
+/**
+ * Helper to fetch all uploaded media files from Supabase storage
+ */
+async function fetchExistingMedia(bucketName = "project-media"): Promise<string[]> {
+  try {
+    const { data, error } = await supabase.storage.from(bucketName).list("", {
+      limit: 100,
+      sortBy: { column: "created_at", order: "desc" },
+    });
+
+    if (error || !data) return [];
+
+    return data
+      .filter((file) => file.name !== ".emptyFolderPlaceholder")
+      .map((file) => {
+        const { data: publicUrlData } = supabase.storage
+          .from(bucketName)
+          .getPublicUrl(file.name);
+        return publicUrlData.publicUrl;
+      });
+  } catch (err) {
+    console.error("Failed to load existing media:", err);
+    return [];
+  }
+}
 
 export default async function EditProjectPage({
   params,
@@ -9,7 +42,12 @@ export default async function EditProjectPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const project = await getProject(slug);
+
+  // Fetch project data and storage assets in parallel
+  const [project, existingMedia] = await Promise.all([
+    getProject(slug),
+    fetchExistingMedia(),
+  ]);
 
   if (!project) {
     return (
@@ -55,7 +93,11 @@ export default async function EditProjectPage({
       {/* Form card */}
       <div className="relative bg-zinc-950 border border-zinc-800 p-6 sm:p-10 hud-clip">
         <div className="absolute top-0 left-0 right-4 h-[2px] bg-gradient-to-r from-cyan-400 via-teal-300 to-transparent" />
-        <EditProjectForm project={project} updateAction={updateProject} />
+        <EditProjectForm
+          project={project}
+          existingMedia={existingMedia}
+          updateAction={updateProject}
+        />
       </div>
     </main>
   );
