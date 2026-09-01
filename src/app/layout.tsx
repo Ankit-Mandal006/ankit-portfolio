@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import BackgroundGlow from "@/components/home/BackgroundGlow";
 import MeshBackground from "@/components/home/MeshBackground";
 import ConditionalLayout from "@/components/layout/ConditionalLayout";
@@ -52,6 +53,7 @@ export default function RootLayout({
 
         {/* Footer with Contact section — hidden on /admin and /login */}
         <ConditionalFooter />
+        <Analytics />
       </body>
     </html>
   );
