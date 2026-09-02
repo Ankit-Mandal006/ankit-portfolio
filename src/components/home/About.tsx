@@ -215,21 +215,6 @@ export default function About() {
           </article>
         ))}
       </div>
-
-      {/* ========================= */}
-      {/* ACTION CTA */}
-      {/* ========================= */}
-      <div className="mt-14 flex justify-center">
-        <Link
-          href="/contact"
-          className="group inline-flex items-center gap-3 border border-cyan-500/40 bg-zinc-950/80 px-6 py-3 font-mono text-xs font-bold uppercase tracking-widest text-cyan-400 transition-all duration-300 hover:border-cyan-400 hover:bg-cyan-400 hover:text-black hover:shadow-[0_0_20px_rgba(34,211,238,0.4)] hud-clip-sm"
-        >
-          <span>INITIATE_CONTACT</span>
-          <span className="transition-transform duration-300 group-hover:translate-x-1">
-            →
-          </span>
-        </Link>
-      </div>
     </section>
   );
 }
