@@ -69,9 +69,6 @@ export default async function ProjectPage({
   }
 
   const cover = project.cover || "/defaults/project-cover.png";
-  const reviewCount = Math.abs(slug.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0) % 15) + 3;
-  const rating = (4.8 + (Math.abs(slug.charCodeAt(0) % 3) / 10)).toFixed(1);
-  const fileSize = `${Math.abs(slug.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0) % 350) + 40} MB`;
 
   return (
     <>
@@ -175,10 +172,14 @@ export default async function ProjectPage({
             <Reveal>
               <div className="bg-zinc-950 border border-zinc-800 p-6 hud-clip space-y-4 shadow-xl font-mono text-xs">
                 <div className="border-b border-zinc-800 pb-2">
-                  <h3 className="font-bold text-zinc-400 uppercase tracking-wider text-[10px]">// TECHNICAL_SPECS</h3>
+                  <h3 className="font-bold text-zinc-400 uppercase tracking-wider text-[10px]">01 // TECHNICAL_SPECS</h3>
                 </div>
 
                 <div className="space-y-3 pt-1">
+                  <div className="flex justify-between items-center">
+                    <span className="text-zinc-500 uppercase tracking-wider text-[10px]">Role</span>
+                    <span className="text-zinc-300 font-medium">{project.role || "Developer"}</span>
+                  </div>
                   <div className="flex justify-between items-center">
                     <span className="text-zinc-500 uppercase tracking-wider text-[10px]">License</span>
                     <span className="text-zinc-300 font-medium">MIT / Open Source</span>
@@ -188,15 +189,7 @@ export default async function ProjectPage({
                     <span className="text-zinc-300 font-medium">Free Access</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-zinc-500 uppercase tracking-wider text-[10px]">File Size</span>
-                    <span className="text-zinc-300 font-medium">{fileSize}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-zinc-500 uppercase tracking-wider text-[10px]">Version</span>
-                    <span className="text-zinc-300 font-medium">1.0.0</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-zinc-500 uppercase tracking-wider text-[10px]">Release</span>
+                    <span className="text-zinc-500 uppercase tracking-wider text-[10px]">Development Duration</span>
                     <span className="text-zinc-300 font-medium">{project.duration || "Aug 14, 2026"}</span>
                   </div>
                   <div className="flex justify-between items-center">

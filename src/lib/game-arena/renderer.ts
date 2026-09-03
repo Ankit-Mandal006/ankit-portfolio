@@ -205,12 +205,12 @@ export class GameRenderer {
       ctx.font = "bold 11px monospace";
       ctx.fillStyle = "#00f3ff";
       ctx.textAlign = "center";
-      ctx.fillText(`// NODE_${node.title.toUpperCase()}`, 0, -node.radius - 22);
+      ctx.fillText(node.title.toUpperCase(), 0, -node.radius - 22);
 
       if (isActive) {
         ctx.font = "10px monospace";
         ctx.fillStyle = "#ffffff";
-        ctx.fillText("[ GRAVITY LOCKED // PRESS E TO INSPECT ]", 0, node.radius + 28);
+        ctx.fillText("[ PRESS E TO INSPECT ]", 0, node.radius + 28);
       }
 
       ctx.restore();
@@ -379,9 +379,9 @@ export class GameRenderer {
     // Radar Header
     ctx.font = "bold 9px monospace";
     ctx.fillStyle = "#00f3ff";
-    ctx.fillText("RADAR_SYS // ACTIVE", x + 18, y + 12);
+    ctx.fillText("MINIMAP", x + 18, y + 12);
     ctx.fillStyle = "rgba(0, 243, 255, 0.4)";
-    ctx.fillText("[1420 MHz]", x + size - 58, y + 12);
+    ctx.fillText("[ACTIVE]", x + size - 50, y + 12);
 
     // Radar Concentric Range Rings
     ctx.strokeStyle = "rgba(0, 243, 255, 0.15)";
@@ -460,29 +460,8 @@ export class GameRenderer {
     // Bottom Radar Ticks
     ctx.font = "8px monospace";
     ctx.fillStyle = "rgba(0, 243, 255, 0.5)";
-    ctx.fillText("0.5K", cx - 10, cy + radius * 0.3 + 3);
-    ctx.fillText("1.0K", cx - 10, cy + radius * 0.6 + 3);
-
-    ctx.restore();
-  }
-
-  public drawGlitchPostProcess() {
-    if (Math.random() > 0.08) return;
-
-    const ctx = this.ctx;
-    ctx.save();
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    const { w, h } = this.getViewBounds();
-
-    const sliceCount = Math.floor(Math.random() * 3) + 1;
-    for (let i = 0; i < sliceCount; i++) {
-      const gy = Math.random() * h;
-      const gh = Math.random() * 12 + 2;
-      const offset = (Math.random() - 0.5) * 30;
-
-      ctx.fillStyle = i % 2 === 0 ? "rgba(0, 243, 255, 0.15)" : "rgba(255, 0, 85, 0.15)";
-      ctx.fillRect(offset > 0 ? offset : 0, gy, w - Math.abs(offset), gh);
-    }
+    ctx.fillText("0.5", cx - 8, cy + radius * 0.3 + 3);
+    ctx.fillText("1.0", cx - 8, cy + radius * 0.6 + 3);
 
     ctx.restore();
   }

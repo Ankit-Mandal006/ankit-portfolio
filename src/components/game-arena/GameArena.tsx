@@ -397,7 +397,6 @@ export default function GameArena({ isOpen, onClose }: GameArenaProps) {
         renderer.endCameraTransform();
 
         renderer.drawUIOverlay(nodesRef.current, player);
-        renderer.drawGlitchPostProcess();
       }
 
       frameId = requestAnimationFrame(loop);
@@ -412,7 +411,7 @@ export default function GameArena({ isOpen, onClose }: GameArenaProps) {
       observer.disconnect();
       cancelAnimationFrame(frameId);
     };
-  }, [isOpen, onClose]);
+  }, [isOpen, loading, onClose]);
 
   const chamferCutStyle = {
     clipPath: "polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%)",
@@ -431,19 +430,14 @@ export default function GameArena({ isOpen, onClose }: GameArenaProps) {
             style={chamferCutStyle}
             className="relative flex-1 w-full h-full bg-[#030712] border border-cyan-500/50 flex flex-col shadow-[0_0_40px_rgba(0,243,255,0.18)]"
           >
-            {/* Corner Bracket Accents */}
-            <div className="absolute top-2 left-2 text-[10px] text-cyan-400 font-mono select-none pointer-events-none">┌</div>
-            <div className="absolute top-2 right-6 text-[10px] text-cyan-400 font-mono select-none pointer-events-none">┐</div>
-            <div className="absolute bottom-2 left-2 text-[10px] text-cyan-400 font-mono select-none pointer-events-none">└</div>
-
-            {/* Top Bar Cyber HUD */}
+            {/* Top Bar Game HUD */}
             <div className="flex justify-between items-center px-4 sm:px-6 py-2.5 bg-black/90 border-b border-cyan-500/40 text-xs font-mono z-10 shrink-0">
               <div className="flex items-center gap-3 text-cyan-400">
                 <Gamepad2 className="w-4 h-4 text-cyan-400" />
                 <span className="tracking-widest font-bold hidden sm:inline text-cyan-300">
-                  01 // DIAGNOSTICS_REPORT // ARENA_SYSTEMS
+                  SPACE ARENA
                 </span>
-                <span className="sm:hidden font-bold">// ARENA_OS</span>
+                <span className="sm:hidden font-bold">ARENA</span>
               </div>
 
               <div className="flex items-center gap-3">
@@ -452,7 +446,7 @@ export default function GameArena({ isOpen, onClose }: GameArenaProps) {
                   className="flex items-center gap-2 text-cyan-400 bg-cyan-950/60 border border-cyan-500/40 px-3 py-1 text-[11px] font-bold tracking-wider"
                 >
                   <Activity className="w-3.5 h-3.5 animate-pulse text-cyan-400" />
-                  <span>GRAVITY: ACTIVE</span>
+                  <span>STATUS: ONLINE</span>
                 </div>
 
                 <div
@@ -462,8 +456,6 @@ export default function GameArena({ isOpen, onClose }: GameArenaProps) {
                   <Trophy className="w-3.5 h-3.5 text-amber-400" />
                   <span>SCORE: {score}</span>
                 </div>
-
-                <span className="text-[10px] text-cyan-600 hidden md:inline">[SYS_MOD_01]</span>
               </div>
 
               <button
@@ -479,7 +471,7 @@ export default function GameArena({ isOpen, onClose }: GameArenaProps) {
               {loading ? (
                 <div className="absolute inset-0 flex items-center justify-center text-cyan-400 font-mono tracking-widest bg-[#030712]">
                   <Zap className="w-6 h-6 animate-bounce mr-2 text-cyan-400" />
-                  INITIALIZING GRAVITY MESH...
+                  LOADING ARENA...
                 </div>
               ) : (
                 <canvas ref={canvasRef} className="block w-full h-full cursor-crosshair" />
@@ -493,17 +485,12 @@ export default function GameArena({ isOpen, onClose }: GameArenaProps) {
                   style={chamferCutStyle}
                   className="absolute bottom-4 left-4 right-4 sm:right-auto sm:w-[420px] bg-[#030914]/95 border border-cyan-500/70 p-5 text-white font-mono backdrop-blur-md z-20 shadow-[0_0_30px_rgba(0,243,255,0.25)]"
                 >
-                  {/* Subtle Corner Markers */}
-                  <span className="absolute top-1.5 left-2 text-[9px] text-cyan-500/60">┌</span>
-                  <span className="absolute top-1.5 right-6 text-[9px] text-cyan-500/60">┐</span>
-                  <span className="absolute bottom-1.5 left-2 text-[9px] text-cyan-500/60">└</span>
 
                   {/* Header Strip */}
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-[11px] text-cyan-400 font-bold tracking-wider flex items-center gap-1.5">
-                      01 // TARGET_NODE
+                      TARGET_NODE
                     </span>
-                    <span className="text-[10px] text-cyan-500/60 font-semibold">[SYS_MOD_01]</span>
                   </div>
 
                   <h3 className="text-xl font-bold text-white tracking-wide mb-2">{activeNode.title}</h3>

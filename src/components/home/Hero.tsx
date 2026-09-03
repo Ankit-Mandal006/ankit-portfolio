@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { FolderGit2, Palette, Mail, Terminal, Shield, Cpu, Activity, Gamepad2 } from "lucide-react";
-import GameArena from "@/components/game-arena/GameArena";
 import GlitchTitle from "@/components/home/GlitchTitle";
 
 function GithubIcon(props: React.SVGProps<SVGSVGElement>) {
@@ -33,9 +32,6 @@ export default function Hero() {
   const [currentBioIndex, setCurrentBioIndex] = useState(0);
   const [typedBio, setTypedBio] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
-
-  // Game state
-  const [isGameOpen, setIsGameOpen] = useState(false);
 
   const bios = [
     "Designing stealth systems, AI behaviors, and mechanical gameplay dynamics.",
@@ -114,9 +110,6 @@ export default function Hero() {
       <div className="absolute inset-0 opacity-10 bg-[linear-gradient(45deg,rgba(34,211,238,0.05)_1px,transparent_1.5px)] pointer-events-none" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(34,211,238,0.08),transparent_65%)] pointer-events-none" />
       <div className="absolute top-40 left-1/2 -translate-x-1/2 w-[700px] h-[700px] rounded-full bg-cyan-500/5 blur-3xl pointer-events-none" />
-
-      {/* Embedded Game Component Modal */}
-      <GameArena isOpen={isGameOpen} onClose={() => setIsGameOpen(false)} />
 
       <AnimatePresence mode="wait">
         {!bootComplete ? (
@@ -218,7 +211,7 @@ export default function Hero() {
             </motion.div>
 
             {/* GLITCH TITLE — Clicking opens the Playable Game Arena */}
-            <GlitchTitle onClick={() => setIsGameOpen(true)} />
+            <GlitchTitle onClick={() => window.open('/game-arena', '_blank')} />
 
             {/* Typewritten Bio Tagline */}
             <div className="h-[80px] md:h-[60px] flex items-center justify-center mt-6">

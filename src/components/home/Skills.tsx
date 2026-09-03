@@ -137,9 +137,9 @@ export default function Skills() {
           <div className="space-y-2.5 font-mono">
             {[
               { lang: "C#", details: "Game Dev / OOP Core", lv: 5 },
+              { lang: "Java", details: "Object Architectures", lv: 5 },
               { lang: "C++", details: "Memory Opt / low-level", lv: 4 },
               { lang: "C", details: "Memory management", lv: 4 },
-              { lang: "Java", details: "Object Architectures", lv: 3 },
               { lang: "Python", details: "Workflow Automation", lv: 3 },
             ].map((item) => (
               <div
